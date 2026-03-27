@@ -18,7 +18,7 @@
 
 </p>
 
-🇧🇷 [Leia em Português](./README.pt-br.md) | 📚 [Full Documentation](./docs/en/index.md)
+🇧🇷 [Leia em Português](./README.pt-BR.md) | 📚 [Full Documentation](./docs/en/index.md)
 
 ---
 
