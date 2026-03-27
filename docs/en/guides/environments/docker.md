@@ -207,7 +207,8 @@ docker compose restart moodle-dev-mcp
 
 # ➡️ Next Steps
 
-- [Claude Code](../clients/claude-code.md) — configuração detalhada para o modo stdio
-- [Gemini Code Assist](../clients/gemini-code-assist.md) — configuração detalhada para o VS Code
-- [Problemas Comuns](../../troubleshooting/common-issues.md) — erros de permissão e PATH
-- [Voltar ao Índice](../../index.md)
+- [Claude Code](../clients/claude-code.md) — detailed configuration
+- [Gemini Code Assist](../clients/gemini-code-assist.md) — detailed configuration
+- [OpenAi Codex](../clients/codex.md) — detailed configuration
+- [Common Issues](../../troubleshooting/common-issues.md) — permission and PATH errors
+- [Back to Index](../../index.md)

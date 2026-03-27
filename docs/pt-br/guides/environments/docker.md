@@ -71,8 +71,8 @@ services:
         container_name: moodle-dev-mcp
         working_dir: /app
         volumes:
-            - ./moodle-dev-mcp:/app          # código do servidor MCP
-            - ./www/html/moodle:/var/www/moodle  # Moodle (leitura + escrita)
+            - ./moodle-dev-mcp:/app # código do servidor MCP
+            - ./www/html/moodle:/var/www/moodle # Moodle (leitura + escrita)
         environment:
             - MOODLE_PATH=/var/www/moodle
             - MOODLE_VERSION=4.5
@@ -168,7 +168,8 @@ docker compose restart moodle-dev-mcp
 
 ## ➡️ Próximos Passos
 
-- [Claude Code](../clients/claude-code.md) — configuração detalhada para o modo stdio
-- [Gemini Code Assist](../clients/gemini-code-assist.md) — configuração detalhada para o VS Code
+- [Claude Code](../clients/claude-code.md) — configuração detalhada
+- [Gemini Code Assist](../clients/gemini-code-assist.md) — configuração detalhada
+- [OpenAi Codex](../clients/codex.md) — configuração detalhada
 - [Problemas Comuns](../../troubleshooting/common-issues.md) — erros de permissão e PATH
 - [Voltar ao Índice](../../index.md)
