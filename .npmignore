@@ -1,0 +1,67 @@
+# ============================================================
+# .npmignore — defines what is EXCLUDED from the npm package
+#
+# What gets published (everything NOT listed here):
+#   dist/            ← compiled JS (the actual server)
+#   README.md        ← English docs
+#   README.pt-BR.md  ← Portuguese docs
+#   LICENSE          ← required by GPL-3.0
+#   .env.example     ← helpful reference for users
+#   package.json     ← required by npm
+# ============================================================
+
+# Source — only dist/ is published
+src/
+
+# TypeScript / lint config — not needed at runtime
+tsconfig.json
+eslint.config.js
+
+# Maintainer-only docs
+PUBLISHING.md
+server.json
+docs/
+
+# Git/setup scripts — only needed when cloning
+setup.sh
+.gitignore
+.github/
+
+# Lock files — not needed in published package
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+
+# Dev environment
+.env
+.vscode/
+.idea/
+
+# OS artifacts
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# Logs / runtime artifacts
+*.log
+npm-debug.log*
+.moodle-mcp
+
+# Test artifacts
+coverage/
+
+# Compiled test files — not needed in published package
+dist/tests/
+
+# Contributing guides — GitHub only
+CONTRIBUTING.md
+CONTRIBUTING.pt-BR.md
+
+# Developer utilities — not part of the server
+support.sh
+demo.tape
+
+# AI/editor config files
+.aiexclude

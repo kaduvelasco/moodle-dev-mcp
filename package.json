@@ -1,0 +1,67 @@
+{
+  "name": "moodle-dev-mcp",
+  "version": "1.0.0",
+  "description": "MCP server for Moodle development — context, indexes, and AI tooling for Moodle plugin developers",
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "moodle",
+    "moodle-plugin",
+    "plugin-development",
+    "moodle-development",
+    "ai-tools",
+    "ai-context",
+    "claude",
+    "cursor",
+    "vscode"
+  ],
+  "author": "kaduvelasco",
+  "license": "GPL-3.0",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "moodle-dev-mcp": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "start": "node dist/index.js",
+    "start:http": "node dist/index.js --http",
+    "dev": "tsx src/index.ts",
+    "dev:http": "tsx src/index.ts --http",
+    "inspector": "npx @modelcontextprotocol/inspector dist/index.js",
+    "clean": "rm -rf dist",
+    "lint": "eslint src/**/*.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "node --import tsx/esm --test src/tests/**/*.test.ts",
+    "test:watch": "node --import tsx/esm --test --watch src/tests/**/*.test.ts",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.10.2",
+    "express": "^4.21.2",
+    "fast-xml-parser": "^4.5.3",
+    "glob": "^13.0.6",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.1",
+    "@types/node": "^22.15.3",
+    "@typescript-eslint/eslint-plugin": "^8.31.1",
+    "@typescript-eslint/parser": "^8.31.1",
+    "eslint": "^9.25.1",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "homepage": "https://github.com/kaduvelasco/moodle-dev-mcp#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kaduvelasco/moodle-dev-mcp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/kaduvelasco/moodle-dev-mcp/issues"
+  }
+}
