@@ -2,26 +2,40 @@
 
 ---
 
-# Usando com Gemini Code Assist (VS Code)
+# Usando com Gemini Code Assist
 
-O **Gemini Code Assist** integra o poder da IA do Google diretamente no VS Code. Com suporte a MCP via **Agent Mode**, o Gemini passa a ter acesso em tempo real à estrutura do seu Moodle, permitindo sugestões de código mais precisas e contextualizadas.
+O **Gemini Code Assist** está disponível como CLI de terminal (`gemini`) e como extensão para o VS Code. Ambos suportam servidores MCP e compartilham o mesmo arquivo de configuração `~/.gemini/settings.json`.
 
 ---
 
 ## 🛠️ Configuração do Servidor MCP
 
-O Gemini Code Assist lê a configuração de servidores MCP de um arquivo JSON no diretório do usuário.
+### Opção 1 — Via CLI (recomendado)
 
-### 1. Localize ou crie o arquivo de configuração
+```bash
+gemini mcp add moodle-dev-mcp \
+  --command "npx" \
+  --args "-y,moodle-dev-mcp" \
+  --env MOODLE_PATH=/caminho/para/seu/moodle
+```
+
+Verifique se foi registrado:
+
+```bash
+gemini mcp list
+# → moodle-dev-mcp: npx -y moodle-dev-mcp
+```
+
+### Opção 2 — Editando o settings.json diretamente
+
+O arquivo de configuração fica em:
 
 | Sistema operacional | Caminho |
 |---------------------|---------|
 | Linux / macOS | `~/.gemini/settings.json` |
 | Windows | `%USERPROFILE%\.gemini\settings.json` |
 
-### 2. Adicione o servidor moodle-dev-mcp
-
-**Via NPM (recomendado — após publicação):**
+**Via NPM:**
 
 ```json
 {
@@ -53,7 +67,7 @@ O Gemini Code Assist lê a configuração de servidores MCP de um arquivo JSON n
 }
 ```
 
-> **Problema com nvm / mise / asdf:** o Gemini Code Assist herda o ambiente do processo do VS Code, que pode não incluir o PATH do seu shell. Se o `node` ou `npx` não for encontrado, adicione o PATH explicitamente:
+> **Problema com nvm / mise / asdf:** o Gemini herda o ambiente do processo pai, que pode não incluir o PATH do seu shell. Se `npx` não for encontrado, adicione o PATH explicitamente:
 > ```json
 > "env": {
 >     "PATH": "/home/usuario/.nvm/versions/node/v22.0.0/bin:/usr/local/bin:/usr/bin:/bin",
@@ -62,13 +76,16 @@ O Gemini Code Assist lê a configuração de servidores MCP de um arquivo JSON n
 > ```
 > Execute `which node` no terminal para encontrar o caminho correto.
 
-### 3. Recarregue o VS Code
+### Após configurar
 
-Após salvar o `settings.json`, recarregue a janela do VS Code:
+**CLI:** reinicie a sessão do Gemini (`Ctrl+C` e `gemini` novamente) para carregar o novo servidor.
+
+**VS Code:** recarregue a janela após salvar o `settings.json`:
 
 `Ctrl+Shift+P` → **Developer: Reload Window**
 
 ---
+
 
 ## 🤖 Ativando o Agent Mode
 

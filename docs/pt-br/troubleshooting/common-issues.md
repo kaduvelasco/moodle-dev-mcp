@@ -81,11 +81,22 @@ which node
 }
 ```
 
+**OpenAI Codex (`~/.codex/config.toml`):**
+```toml
+[mcp_servers.moodle-dev-mcp]
+command  = "npx"
+args     = ["-y", "moodle-dev-mcp"]
+env_vars = ["PATH"]
+env      = { MOODLE_PATH = "/home/usuario/workspace/www/html/moodle" }
+```
+
 ---
 
-### Gemini Code Assist travado em "Connecting..."
+### Gemini travado em "Connecting..."
 
-**Sintoma:** O servidor aparece no `/mcp` mas nunca sai do estado "Connecting...". Nenhuma tool é listada.
+**Sintoma:** O servidor aparece mas nunca sai do estado "Connecting...". Nenhuma tool é listada.
+
+**No VS Code (Gemini Code Assist):**
 
 **Causa:** O Gemini Code Assist só carrega servidores MCP no **Agent Mode**. No chat padrão, o servidor não é inicializado.
 
@@ -93,6 +104,18 @@ which node
 1. Confirme que o toggle **Agent** está ativo no topo do painel do Gemini
 2. Recarregue a janela: `Ctrl+Shift+P` → **Developer: Reload Window**
 3. Execute `/mcp` novamente no chat do Agent Mode
+
+**No CLI (gemini):**
+
+Se o servidor foi adicionado com `gemini mcp add` mas não aparece, reinicie a sessão:
+
+```bash
+# Encerrar a sessão atual e iniciar uma nova
+Ctrl+C
+gemini
+```
+
+Dentro da sessão, verifique com `/mcp`.
 
 ---
 

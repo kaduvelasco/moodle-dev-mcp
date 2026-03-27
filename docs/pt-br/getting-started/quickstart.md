@@ -27,9 +27,18 @@ claude mcp list
 # → moodle-dev-mcp: npx -y moodle-dev-mcp (user scope)
 ```
 
-### Gemini Code Assist (VS Code)
+### Gemini Code Assist (CLI e VS Code)
 
-Crie ou edite o arquivo `~/.gemini/settings.json`:
+**Via CLI (recomendado):**
+
+```bash
+gemini mcp add moodle-dev-mcp \
+  --command "npx" \
+  --args "-y,moodle-dev-mcp" \
+  --env MOODLE_PATH=/var/www/html/moodle
+```
+
+**Via arquivo de configuração** — crie ou edite `~/.gemini/settings.json`:
 
 ```json
 {
@@ -45,15 +54,27 @@ Crie ou edite o arquivo `~/.gemini/settings.json`:
 }
 ```
 
-Após salvar, recarregue a janela do VS Code (`Ctrl+Shift+P` → **Developer: Reload Window**) e ative o **modo Agent** no painel do Gemini.
+Após configurar, reinicie a sessão do Gemini CLI ou recarregue a janela do VS Code (`Ctrl+Shift+P` → **Developer: Reload Window**) e ative o **modo Agent** no painel do Gemini.
+
+### OpenAI Codex
+
+```bash
+codex mcp add moodle-dev-mcp \
+  --env MOODLE_PATH=/var/www/html/moodle \
+  -- npx -y moodle-dev-mcp
+```
+
+Ou edite diretamente `~/.codex/config.toml`:
+
+```toml
+[mcp_servers.moodle-dev-mcp]
+command = "npx"
+args    = ["-y", "moodle-dev-mcp"]
+env     = { MOODLE_PATH = "/var/www/html/moodle" }
+```
 
 > Para instruções detalhadas de cada cliente — incluindo configuração de PATH para gerenciadores de versão como nvm, mise e asdf — veja os guias completos:
-
-> [Claude Code](../guides/clients/claude-code.md)
-
-> [Gemini Code Assist](../guides/clients/gemini-code-assist.md)
-
-> [OpenAI Codex](../guides/clients/codex.md)
+> [Claude Code](../guides/clients/claude-code.md) · [Gemini Code Assist](../guides/clients/gemini-code-assist.md) · [OpenAI Codex](../guides/clients/codex.md)
 
 ---
 
