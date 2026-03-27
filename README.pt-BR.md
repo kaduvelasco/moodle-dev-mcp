@@ -5,6 +5,7 @@
 </p>
 
 > **Transforme seu assistente de IA em um especialista em Moodle.**
+
 > Servidor MCP que conecta assistentes de IA (Claude, Gemini e outros) diretamente à estrutura interna do Moodle para acelerar o desenvolvimento de plugins.
 
 <p align="center">

@@ -5,6 +5,7 @@
 </p>
 
 > **Turn your AI assistant into a Moodle expert.**
+
 > MCP server that connects AI assistants (Claude, Gemini and others) directly to Moodle's internal structure to accelerate plugin development.
 
 <p align="center">

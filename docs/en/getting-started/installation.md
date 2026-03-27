@@ -23,6 +23,7 @@ You will also need a **compatible MCP client** to interact with the server. See 
 
 - [Claude Code](../guides/clients/claude-code.md)
 - [Gemini Code Assist](../guides/clients/gemini-code-assist.md)
+- [OpenAI Codex](../guides/clients/codex.md)
 
 ---
 
@@ -115,6 +116,7 @@ With the server installed, configure your MCP client:
 
 - [Configure Claude Code](../guides/clients/claude-code.md)
 - [Configure Gemini Code Assist](../guides/clients/gemini-code-assist.md)
+- [Configurar OpenAI Codex](../guides/clients/codex.md)
 
 Or jump straight to usage:
 

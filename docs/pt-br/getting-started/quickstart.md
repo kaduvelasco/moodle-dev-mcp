@@ -48,7 +48,12 @@ Crie ou edite o arquivo `~/.gemini/settings.json`:
 Após salvar, recarregue a janela do VS Code (`Ctrl+Shift+P` → **Developer: Reload Window**) e ative o **modo Agent** no painel do Gemini.
 
 > Para instruções detalhadas de cada cliente — incluindo configuração de PATH para gerenciadores de versão como nvm, mise e asdf — veja os guias completos:
-> [Claude Code](../guides/clients/claude-code.md) · [Gemini Code Assist](../guides/clients/gemini-code-assist.md)
+
+> [Claude Code](../guides/clients/claude-code.md)
+
+> [Gemini Code Assist](../guides/clients/gemini-code-assist.md)
+
+> [OpenAI Codex](../guides/clients/codex.md)
 
 ---
 

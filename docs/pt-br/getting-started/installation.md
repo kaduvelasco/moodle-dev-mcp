@@ -12,17 +12,18 @@ O **moodle-dev-mcp** pode ser instalado globalmente via NPM ou clonado localment
 
 Antes de começar, certifique-se de ter instalado em sua máquina:
 
-| Componente          | Versão mínima | Observação                                        |
-| :------------------ | :------------ | :------------------------------------------------ |
-| Node.js             | 18.x          | Versão LTS recomendada                            |
-| npm                 | —             | Instalado automaticamente com o Node.js           |
-| Moodle              | 4.1           | Hook API requer Moodle 4.3+                       |
-| Sistema operacional | Qualquer      | Linux, macOS e Windows são suportados             |
+| Componente          | Versão mínima | Observação                              |
+| :------------------ | :------------ | :-------------------------------------- |
+| Node.js             | 18.x          | Versão LTS recomendada                  |
+| npm                 | —             | Instalado automaticamente com o Node.js |
+| Moodle              | 4.1           | Hook API requer Moodle 4.3+             |
+| Sistema operacional | Qualquer      | Linux, macOS e Windows são suportados   |
 
 Você também precisará de um **cliente MCP compatível** para interagir com o servidor. Veja os clientes suportados oficialmente:
 
 - [Claude Code](../guides/clients/claude-code.md)
 - [Gemini Code Assist](../guides/clients/gemini-code-assist.md)
+- [OpenAI Codex](../guides/clients/codex.md)
 
 ---
 
@@ -58,14 +59,14 @@ chmod +x setup.sh
 
 O script executa automaticamente as seguintes etapas:
 
-| Etapa                   | O que faz                                                         |
-| :---------------------- | :---------------------------------------------------------------- |
-| **Verificar Node.js**   | Confirma que a versão >= 18 está instalada                        |
-| **Verificar npm**       | Confirma que o npm está disponível no PATH                        |
-| **Instalar dependências** | Executa `npm install`                                           |
-| **Type check**          | Executa `tsc --noEmit` para validar o TypeScript                  |
-| **Build**               | Compila `src/` → `dist/` via `tsc`                                |
-| **Resumo**              | Exibe exemplos de configuração prontos para uso                   |
+| Etapa                     | O que faz                                        |
+| :------------------------ | :----------------------------------------------- |
+| **Verificar Node.js**     | Confirma que a versão >= 18 está instalada       |
+| **Verificar npm**         | Confirma que o npm está disponível no PATH       |
+| **Instalar dependências** | Executa `npm install`                            |
+| **Type check**            | Executa `tsc --noEmit` para validar o TypeScript |
+| **Build**                 | Compila `src/` → `dist/` via `tsc`               |
+| **Resumo**                | Exibe exemplos de configuração prontos para uso  |
 
 **3. Verifique o build:**
 
@@ -81,8 +82,8 @@ O servidor é configurado exclusivamente via variáveis de ambiente. Você pode 
 
 | Variável         | Obrigatória | Descrição                                                                     |
 | :--------------- | :---------: | :---------------------------------------------------------------------------- |
-| `MOODLE_PATH`    | ✅ Sim      | Caminho absoluto para a raiz da instalação Moodle. Ex: `/var/www/html/moodle` |
-| `MOODLE_VERSION` | ❌ Não      | Força uma versão específica do Moodle. Ex: `4.5`. Ver observação abaixo.      |
+| `MOODLE_PATH`    |   ✅ Sim    | Caminho absoluto para a raiz da instalação Moodle. Ex: `/var/www/html/moodle` |
+| `MOODLE_VERSION` |   ❌ Não    | Força uma versão específica do Moodle. Ex: `4.5`. Ver observação abaixo.      |
 
 ### Sobre o `MOODLE_VERSION`
 
@@ -115,6 +116,7 @@ Com o servidor instalado, configure seu cliente MCP:
 
 - [Configurar Claude Code](../guides/clients/claude-code.md)
 - [Configurar Gemini Code Assist](../guides/clients/gemini-code-assist.md)
+- [Configurar OpenAI Codex](../guides/clients/codex.md)
 
 Ou pule direto para o uso:
 
