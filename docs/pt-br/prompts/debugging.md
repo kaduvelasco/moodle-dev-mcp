@@ -1,61 +1,95 @@
-🌐 [English](../../en/prompts/debugging.md) | **Português**
-🏠 [Início](../index.md)
+# Prompts de Depuração
 
-# Prompts de Depuração (Debugging)
-
-Prompts especializados para diagnosticar erros, analisar fluxos de execução e migrar código legado no Moodle.
+[🇺🇸 Read in English](../../en/prompts/debugging.md)  |  [← Voltar ao Índice](../index.md)
 
 ---
 
-## 🔍 Diagnóstico de Erros Ativos
+Prompts para depurar erros de plugins Moodle com contexto completo.
 
-Ajuda a identificar a causa raiz de um erro específico.
+## Diagnóstico de erros
 
-**Exemplo de Prompt:**
+```
+O plugin local_meuplugin está gerando este erro:
+"Table 'mdl_local_meuplugin_data' doesn't exist"
+Acontece quando um professor abre a página de configurações.
+Qual é a causa raiz e como corrijo?
+```
 
-> "O plugin `local_meuplugin` está gerando este erro: 'Table mdl_local_meuplugin_data doesn't exist'. Acontece quando um professor abre a página de configurações. Qual é a causa raiz e como corrijo?"
+```
+local_meuplugin está disparando:
+"Call to undefined method local_meuplugin\output\renderer::render_summary()"
+Baseado na estrutura do plugin, trace onde render_summary deveria estar definido.
+```
 
----
+```
+A task agendada \local_meuplugin\task\cleanup_task está falhando
+com "Permission denied" quando o cron executa. Quais permissões de
+arquivo ou definições de capability podem estar causando isso?
+```
 
-## 🔄 Análise de Fluxo de Execução
+## Análise de fluxo de execução
 
-Útil para entender plugins complexos ou legados.
+```
+Analise o fluxo de execução do local_meuplugin. Começando pelos
+principais entry points, trace o que acontece quando um professor
+acessa a página principal do plugin.
+```
 
-**Exemplo de Prompt:**
+## Avisos de migração para Hook API
 
-> "Analise o fluxo de execução do `local_meuplugin`. Começando pelos principais pontos de entrada (entry points), trace o que acontece quando um professor acessa a página principal do plugin."
+```
+Verifique o local_meuplugin em busca de callbacks legados do lib.php
+que foram substituídos pela Hook API no Moodle 4.3+.
+Para cada um encontrado, mostre os passos de migração.
+```
 
----
+## Usando o prompt debug_plugin
 
-## 🎣 Migração para Hook API (Moodle 4.3+)
+O prompt MCP `debug_plugin` detecta automaticamente o tipo de erro:
 
-Mantenha seu plugin modernizado.
-
-**Exemplo de Prompt:**
-
-> "Verifique o `local_meuplugin` em busca de callbacks legados no `lib.php` que foram substituídos pela Hook API no Moodle 4.3+. Para cada um encontrado, mostre os passos de migração."
-
----
-
-## ⚙️ Erros de Task e Permissões
-
-Resolva problemas que só acontecem no Cron.
-
-**Exemplo de Prompt:**
-
-> "A task agendada `\local_meuplugin\task\cleanup_task` está falhando com 'Permission denied' quando o cron executa. Quais permissões de arquivo ou capabilities podem estar causando isso?"
-
----
-
-## 🛠️ Usando a Tool `debug_plugin`
-
-Com o MCP ativo, você pode fornecer o log de erro diretamente:
-
-```bash
+```
 debug_plugin
   plugin="local_meuplugin"
   error="Error: Table 'mdl_local_meuplugin_data' doesn't exist"
-  context="Ocorre ao salvar o formulário de configuração."
+  context="Acontece quando um professor abre a página de configurações"
 ```
+
+Disponível como slash command `/debug_plugin` no modo Agent do Gemini Code Assist.
+
+## Mantendo contexto em sessões longas de debug
+
+Sessões de diagnóstico complexas podem exigir múltiplas iterações. Para manter a continuidade:
+
+```
+Carregue o contexto do plugin local_meuplugin.
+Continuando o debug de ontem: o erro "Table doesn't exist" para mdl_local_meuplugin_data.
+Já verificamos: db/install.xml está correto e o plugin foi reinstalado.
+O erro persiste apenas em contexto de curso (CONTEXT_COURSE).
+Continue a investigação a partir daqui.
+```
+
+Ao encontrar a causa raiz, registre para referência futura:
+
+```
+Atualize o CLAUDE.md registrando: o erro "Table doesn't exist" no local_meuplugin
+foi causado por X. Solução aplicada: Y.
+```
+
+**Gemini CLI** — para retomar a sessão de debug exatamente de onde parou:
+
+```bash
+/chat save debug-local-meuplugin
+# Na próxima sessão:
+/chat resume debug-local-meuplugin
+```
+
+**OpenAI Codex** — para retomar a sessão mais recente:
+
+```bash
+codex resume --last
+```
+
+
+---
 
 [← Voltar ao Índice](../index.md)

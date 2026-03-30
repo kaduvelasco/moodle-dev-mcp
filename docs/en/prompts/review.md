@@ -1,76 +1,116 @@
-🌐 [Português](../../pt-br/prompts/reviews.md) | **English**
-🏠 [Home](../index.md)
+# Review Prompts
 
-# Review Prompts (Code Review)
-
-These prompts are designed to perform technical audits, quality analysis, and assist in upgrade processes of existing plugins.
+[🇧🇷 Leia em Português](../../pt-br/prompts/reviews.md)  |  [← Back to Index](../index.md)
 
 ---
 
-## 🔒 Security Review
+Prompts for code review, quality analysis, and upgrades.
 
-Use this prompt to find common vulnerabilities in Moodle.
+## Security review
 
-**Example Prompt:**
+```
+Do a full code review of local_meuplugin focused on security:
+check for missing capability checks, unescaped output,
+unvalidated form parameters, and direct SQL queries.
+```
 
-> "Perform a complete code review of the plugin `local_myplugin` with a focus on security: check for missing capability checks (`has_capability`), unescaped output (`s()` or `format_text`), unvalidated form parameters, and direct SQL queries."
+## Coding standards
 
----
+```
+Review local_meuplugin for Moodle coding standard compliance.
+Focus on: namespace conventions, method visibility, PHPDoc
+completeness, and naming patterns.
+```
 
-## 📏 Code Standards and Quality
+## Database review
 
-Ensure your plugin would pass a Moodle Plugins Directory check.
+```
+Review the database interactions in local_meuplugin.
+Check for missing indexes, inefficient queries, and places
+where get_records_sql is used instead of get_records.
+```
 
-**Example Prompt:**
+## Performance analysis
 
-> "Review `local_myplugin` for compliance with the Moodle coding standard. Focus on: namespaces, method visibility, PHPDoc completeness, and naming conventions (Frankenstyle)."
+```
+Analyze local_meuplugin for performance issues:
+- N+1 query patterns (loops with get_record inside)
+- Missing $DB->get_in_or_equal() for IN queries
+- Unindexed columns used in WHERE clauses
+- Missing cache layer for expensive queries
+```
 
----
+## PHPDoc generation
 
-## 🗄️ Database Optimization
+```
+Load local_meuplugin and generate a PHPDoc block for every
+public function and method that is currently missing one.
+Use the function signatures and context to write accurate
+@param, @return, and @throws tags.
+```
 
-Avoid database performance bottlenecks.
+## DB upgrade
 
-**Example Prompt:**
+```
+The plugin local_meuplugin needs a DB upgrade:
+1. Add column "status" (tinyint, default 0) to local_meuplugin_data
+2. Add an index on (userid, status) to local_meuplugin_data
+3. Rename column "old_value" to "previous_value" in local_meuplugin_logs
 
-> "Review database interactions in `local_myplugin`. Check for missing indexes, inefficient queries, and places where `get_records_sql` is unnecessarily used instead of `get_records`."
+Load the current schema and generate:
+1. The upgrade step in db/upgrade.php (detect current version)
+2. The updated db/install.xml
+3. The updated $plugin->version in version.php
+```
 
----
+## PHPUnit tests
 
-## ⚡ Version Upgrade (Example: Database)
+```
+Generate a PHPUnit test class for \local_meuplugin\util\data_processor.
+Load the plugin context, then generate tests for every public method
+using Moodle's advanced_testcase base class.
+Include setUp/tearDown, fixtures, and at least 2 test cases per method.
+```
 
-Automate the creation of upgrade scripts.
+## Using the review_plugin prompt
 
-**Example Prompt:**
-
-> "The plugin `local_myplugin` needs an upgrade:
->
-> 1. Add column 'status' (tinyint, default 0) to `local_myplugin_data`.
-> 2. Add an index on (userid, status).
->    Generate the upgrade step in `db/upgrade.php`, the updated `db/install.xml`, and the new `$plugin->version`."
-
----
-
-## 🧪 PHPUnit Test Generation
-
-Ideal for ensuring code stability.
-
-**Example Prompt:**
-
-> "Generate a PHPUnit test class for `\local_myplugin\util\data_processor`. Use Moodle’s `advanced_testcase` base class and include at least 2 test cases per method."
-
----
-
-## 🛠️ Using the `review_plugin` Tool
-
-In Gemini Agent mode or Claude, you can be direct:
-
-```bash
+```
 review_plugin
-  plugin="local/myplugin"
+  plugin="local/meuplugin"
   focus="security"
 ```
 
-Focus options: all, security, performance, standards, database, apis.
+Focus options: `all` · `security` · `performance` · `standards` · `database` · `apis`
+
+Available as `/review_plugin` slash command in Gemini Code Assist Agent mode.
+
+## Maintaining Context Between Review Sessions
+
+Full reviews may span multiple sessions. To resume a review where you left off:
+
+```
+Load the context for local_myplugin.
+I'm continuing the security review started yesterday.
+Already reviewed: lib.php, db/install.xml, and index.php.
+Next: review classes/external/ and classes/task/.
+```
+
+Or ask the assistant to save progress:
+
+```
+Update CLAUDE.md recording the progress of the local_myplugin review:
+files already reviewed and issues found.
+```
+
+**Gemini CLI** — to resume the exact session:
+
+```bash
+/chat save review-local-myplugin
+# Next session:
+/chat resume review-local-myplugin
+```
+
+
+---
 
 [← Back to Index](../index.md)

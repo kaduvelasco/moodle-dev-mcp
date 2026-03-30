@@ -1,263 +1,193 @@
-🌐 [Português](../../pt-br/reference/tools.md) | **English** | 🏠 [Índice](../index.md)
+# Tools Reference
+
+[🇧🇷 Leia em Português](../../pt-br/reference/tools.md)  |  [← Back to Index](../index.md)
 
 ---
 
-# Tools Reference (MCP)
+All 11 MCP tools exposed by moodle-dev-mcp.
 
-**Tools** are executable functions that your AI assistant can call to interact with the Moodle installation. Unlike Resources — which are passive reading — Tools perform active actions such as context generation, searches, diagnostics, and monitoring.
+## `init_moodle_context`
 
-## How to use
+Initializes context for a Moodle installation. Run once per installation.
 
-You do not need to memorize the names of the tools. Just give commands in natural language:
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `moodle_path` | string | Absolute path to the Moodle root |
 
-- _"Initialize the context of moodle-dev-mcp for my Moodle installation."_
-- _"Generate the context of the plugin local_myplugin."_
-- _"Search for core API functions related to enrollments."_
+**What it does:** detects version from `version.php`, generates all 13 global index files, saves configuration to `.moodle-mcp`.
 
-The assistant identifies which tool to call and executes it automatically. For scaffold, review, and debugging tasks, use the **MCP Prompts** — which automatically inject additional context. See the [Prompts Reference](./prompts.md).
-
----
-
-## 🗂 Context Management
-
-### `init_moodle_context`
-
-Initializes the context for a Moodle installation. It should be executed once per installation — or whenever Moodle is updated to a new major version.
-
-| Parameter     | Type   | Required | Description                                                              |
-| ------------- | ------ | :------: | ------------------------------------------------------------------------ |
-| `moodle_path` | string |    ✅    | Absolute path to the Moodle root (directory that contains `version.php`) |
-
-**What it does:** detects the Moodle version via `version.php`, generates all 13 global index files (`MOODLE_API_INDEX.md`, `MOODLE_PLUGIN_INDEX.md`, etc.) and saves the configuration in `.moodle-mcp`.
-
-> Skip this tool if `MOODLE_PATH` is already defined as an environment variable — the server will use the configured path automatically.
-
-**Example:**
-
-```
-Initialize the context of moodle-dev-mcp for the installation at
-/home/usuario/workspace/www/html/moodle.
-```
+> Skip this tool if `MOODLE_PATH` is set as an environment variable.
 
 ---
 
-### `generate_plugin_context`
+## `generate_plugin_context`
 
-Generates the complete AI context package for a specific plugin. Creates all `PLUGIN_*.md` files inside the plugin directory.
+Generates the full AI context package for a specific plugin.
 
-| Parameter     | Type   | Required | Description                                                               |
-| ------------- | ------ | :------: | ------------------------------------------------------------------------- |
-| `plugin_path` | string |    ✅    | Relative path (`local/myplugin`) or absolute path to the plugin directory |
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `plugin_path` | string | Relative path (`local/myplugin`) or absolute path |
 
-**What it does:** runs all extractors on the plugin and generates 11 context files (`PLUGIN_AI_CONTEXT.md`, `PLUGIN_DB_TABLES.md`, `PLUGIN_FUNCTION_INDEX.md`, etc.).
-
-**Example:**
-
-```
-Generate the complete AI context for the plugin local_myplugin.
-```
+**What it does:** creates all 11 `PLUGIN_*.md` files in the plugin directory.
 
 ---
 
-### `plugin_batch`
+## `plugin_batch`
 
-Generates or updates context for multiple plugins at once. Useful for initializing all plugins under development or processing the entire installation.
+Generates or refreshes context for multiple plugins at once.
 
-| Parameter     | Type     | Required | Default | Description                                                                         |
-| ------------- | -------- | :------: | ------- | ----------------------------------------------------------------------------------- |
-| `mode`        | string   |    ✅    | `dev`   | `dev` — plugins with `.moodle-mcp-dev`; `all` — all plugins; `list` — specific list |
-| `plugins`     | string[] |    ⚠️    | —       | Required when `mode=list`. List of frankenstyles (ex: `["local_a", "local_b"]`)     |
-| `force`       | boolean  |    ⭕    | `false` | If `true`, ignores the mtime cache and regenerates everything                       |
-| `mark_as_dev` | boolean  |    ⭕    | `false` | If `true`, creates the `.moodle-mcp-dev` file in the processed plugins              |
-
-**Example:**
-
-```
-Generate the context for all plugins that I am developing.
-```
-
-```
-Generate the context for the plugins local_relatorios and local_auditoria,
-marking them as under development.
-```
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `mode` | `dev`/`all`/`list` | `dev` | Which plugins to process |
+| `plugins` | string[] | — | Required when `mode=list` |
+| `force` | boolean | `false` | Bypass mtime cache |
+| `mark_as_dev` | boolean | `false` | Mark processed plugins with `.moodle-mcp-dev` |
 
 ---
 
-### `update_indexes`
+## `update_indexes`
 
-Regenerates the global Moodle indexes. Use it after installing or removing plugins from the installation.
+Regenerates global Moodle indexes.
 
-| Parameter         | Type    | Required | Default | Description                                                  |
-| ----------------- | ------- | :------: | ------- | ------------------------------------------------------------ |
-| `force`           | boolean |    ⭕    | `false` | If `true`, ignores the mtime cache and regenerates all files |
-| `include_plugins` | boolean |    ⭕    | `false` | If `true`, also regenerates the context of dev plugins       |
-
-**What it does:** re-scans the installation using mtime cache — PHP files that have not changed since the last execution are skipped, making subsequent runs fast.
-
-**Example:**
-
-```
-Regenerate all global Moodle indexes.
-```
-
-```
-Regenerate all indexes ignoring the cache — I just upgraded Moodle.
-```
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `force` | boolean | `false` | Bypass mtime cache — regenerate everything |
+| `include_plugins` | boolean | `false` | Also regenerate dev plugin contexts |
 
 ---
 
-## 🔎 Search and Discovery
+## `watch_plugins`
 
-### `search_api`
+Auto-regenerates context when plugin source files change.
 
-Searches functions in the Moodle core API by name or keyword.
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `action` | `start`/`stop`/`status` | Action to perform |
 
-| Parameter    | Type   | Required | Default  | Description                                                                   |
-| ------------ | ------ | :------: | -------- | ----------------------------------------------------------------------------- |
-| `query`      | string |    ✅    | —        | Function name or keyword                                                      |
-| `visibility` | string |    ⭕    | `public` | `public` — only public functions; `deprecated` — only deprecated; `all` — all |
-| `limit`      | number |    ⭕    | `30`     | Maximum number of returned results                                            |
-
-**Example:**
-
-```
-Search for core API functions related to enrollment
-that are not deprecated.
-```
+> Watch mode is in-memory — it does not survive server restarts.
 
 ---
 
-### `search_plugins`
+## `search_plugins`
 
-Finds plugins installed in the Moodle installation by name, component, or type.
+Searches installed plugins by name, component, or type.
 
-| Parameter | Type   | Required | Default | Description                                      |
-| --------- | ------ | :------: | ------- | ------------------------------------------------ |
-| `query`   | string |    ✅    | —       | Search term — name, frankenstyle, or plugin type |
-| `limit`   | number |    ⭕    | `20`    | Maximum number of returned results               |
-
-**Example:**
-
-```
-Which plugins of type "local" are installed in this Moodle instance?
-```
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `query` | string | — | Search term |
+| `limit` | number | `20` | Maximum results |
 
 ---
 
-### `get_plugin_info`
+## `search_api`
 
-Loads the complete context of a plugin into the current AI session. Always use it before starting to work on an existing plugin.
+Searches Moodle core API functions by name.
 
-| Parameter | Type   | Required | Description                                                |
-| --------- | ------ | :------: | ---------------------------------------------------------- |
-| `plugin`  | string |    ✅    | Frankenstyle (`local_myplugin`), relative or absolute path |
-
-**What it does:** reads all `PLUGIN_*.md` files from the plugin and loads them into the session context. The AI then becomes aware of the plugin architecture, database, functions, events, and patterns of the plugin.
-
-**Example:**
-
-```
-Load the complete context of the plugin local_myplugin. I want to analyze
-its database structure.
-```
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `query` | string | — | Function name or partial name |
+| `visibility` | `public`/`deprecated`/`all` | `public` | Filter by visibility |
+| `limit` | number | `30` | Maximum results |
 
 ---
 
-### `list_dev_plugins`
+## `get_plugin_info`
 
-Lists all plugins marked as under development in the installation — that is, those that have the `.moodle-mcp-dev` file in their directory.
+Loads the full context for a specific plugin into the AI session.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `plugin` | string | Component (`local_myplugin`), relative path, or absolute path |
+
+---
+
+## `list_dev_plugins`
+
+Lists all plugins marked as in development — i.e., those that have a `.moodle-mcp-dev` file in their directory.
 
 No parameters.
 
 **Example:**
-
 ```
 Which plugins are marked as under development?
 ```
 
 ---
 
-## 🔄 Monitoring
+## 🏷️ Marking Plugins as Under Development
 
-### `watch_plugins`
+The server identifies which plugins you are developing by the presence of a `.moodle-mcp-dev` file in the plugin directory. This marker is used by `list_dev_plugins`, `watch_plugins`, and `plugin_batch mode="dev"`.
 
-Enables or disables automatic monitoring of files in plugins under development. When active, any PHP file saved inside a dev plugin triggers context regeneration in the background.
+### How to mark a plugin
 
-| Parameter | Type   | Required | Description                                                                   |
-| --------- | ------ | :------: | ----------------------------------------------------------------------------- |
-| `action`  | string |    ✅    | `start` — start monitoring; `stop` — stop; `status` — show the current status |
+**Option 1 — Manual (simplest):**
 
-> Watch mode is **in-memory** — it does not survive server restarts. Maximum of 20 plugins monitored simultaneously.
-
-**Example:**
-
-```
-Start monitoring the plugin local_myplugin for file changes.
+```bash
+touch /your/moodle/local/myplugin/.moodle-mcp-dev
 ```
 
+**Option 2 — Via assistant (when generating context):**
+
 ```
-What is the current status of plugin monitoring?
+Generate the context for local_myplugin and mark it as under development.
 ```
+
+The assistant will call `plugin_batch` with `mark_as_dev=true`, creating the file automatically.
+
+**Option 3 — Multiple plugins at once:**
+
+```
+Generate context for local_reports and local_audit
+and mark both as under development.
+```
+
+### How to unmark a plugin
+
+```bash
+rm /your/moodle/local/myplugin/.moodle-mcp-dev
+```
+
+Or ask the assistant:
+
+```
+Remove the development marker from local_myplugin.
+```
+
+### Check which plugins are marked
+
+```
+Which plugins are marked as under development?
+```
+
+The assistant will call `list_dev_plugins` and list all directories containing `.moodle-mcp-dev`.
+
+### Why use markers?
+
+With plugins marked, you can:
+
+- **`watch_plugins action="start"`** — automatically monitor only dev plugins for file changes
+- **`plugin_batch mode="dev"`** — regenerate context for all of them at once
+- **`list_dev_plugins`** — get a quick overview of what is currently in progress
 
 ---
 
-## 🧪 Diagnosis and Analysis
+## `doctor`
 
-### `explain_plugin`
+Diagnoses the environment and reports health.
 
-Generates a detailed architectural explanation of a plugin. It can be requested for the entire plugin or focused on a specific section.
-
-| Parameter | Type   | Required | Description                                                                           |
-| --------- | ------ | :------: | ------------------------------------------------------------------------------------- |
-| `plugin`  | string |    ✅    | Frankenstyle, relative or absolute path                                               |
-| `section` | string |    ⭕    | Specific section: `database`, `events`, `functions`, `callbacks`, `endpoints`, `flow` |
-
-**Example:**
-
-```
-Use explain_plugin to explain the complete architecture of the plugin local_myplugin.
-```
-
-```
-Explain only the database section of the plugin local_myplugin.
-Are there tables without indexes or poorly typed fields?
-```
+No parameters. Reports: Node.js version, Moodle path, index freshness, cache stats (hits/misses/skips), optional tools (ctags).
 
 ---
 
-### `doctor`
+## `explain_plugin`
 
-Diagnoses the `moodle-dev-mcp` environment and generates a health report.
+Explains a plugin's architecture, optionally focused on one section.
 
-No parameters.
-
-**Checks performed:**
-
-- Node.js version (>= 18 required)
-- Validity and accessibility of `MOODLE_PATH`
-- Detected Moodle version
-- Freshness and integrity of the global indexes
-- Cache statistics (hits, misses, skips)
-- Optional tools available (`universal-ctags`)
-
-> `doctor` is an **MCP tool** — not a CLI command. Run it by asking the assistant: _"Run the moodle-dev-mcp doctor."_
-
-**Example:**
-
-```
-Run the moodle-dev-mcp doctor and tell me if there is any problem
-with the current configuration.
-```
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `plugin` | string | Component, relative path, or absolute path |
+| `section` | string | Optional: `database`, `events`, `functions`, `callbacks`, `endpoints`, `flow` |
 
 ---
 
-## See also
-
-- [Resources Reference](./resources.md) — data that the AI reads passively
-- [Prompts Reference](./prompts.md) — scaffold_plugin, review_plugin, debug_plugin
-- [Generated Files](./generated-files.md) — the `.md` files created in the installation
-- [Usage Examples](../guides/workflows/examples.md) — ready prompts for real scenarios
-
----
-
-[🏠 Back to Index](../index.md)
+[← Back to Index](../index.md)

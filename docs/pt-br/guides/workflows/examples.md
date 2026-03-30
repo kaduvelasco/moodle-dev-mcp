@@ -288,6 +288,72 @@ Após adicionar novas tabelas, classes ou callbacks, peça: _"Regenere o context
 
 ---
 
+## 🔖 Continuidade entre Sessões
+
+Os clientes de IA não guardam memória de conversa entre sessões por padrão. Cada vez que você abre uma nova sessão, o assistente começa do zero — sem saber em quais plugins você estava trabalhando, quais decisões foram tomadas ou qual o estado atual do desenvolvimento.
+
+O `CLAUDE.md`, `GEMINI.md` e `AGENTS.md` são a forma mais robusta de manter continuidade — funciona em qualquer sessão, sem precisar lembrar de nada manualmente.
+
+### Estratégia recomendada: arquivo de contexto vivo
+
+Peça ao assistente para atualizar o arquivo de contexto ao final de cada sessão importante:
+
+```
+Atualize o CLAUDE.md com o estado atual do desenvolvimento:
+quais plugins estão em andamento, o que foi implementado hoje
+e quais são os próximos passos.
+```
+
+O assistente editará o arquivo diretamente no diretório Moodle. Na próxima sessão, ele lerá esse estado automaticamente.
+
+### Salvando e retomando sessões por cliente
+
+**Claude Code** — não tem histórico de sessão nativo, mas o `CLAUDE.md` é lido automaticamente. Atualize-o ao final de sessões longas.
+
+**Gemini CLI** — suporta salvar e retomar sessões:
+
+```bash
+# Dentro do Gemini CLI, salvar a sessão atual
+/chat save moodle-dev
+
+# Na próxima vez, retomar de onde parou
+/chat resume moodle-dev
+```
+
+**OpenAI Codex** — suporta retomar a sessão mais recente:
+
+```bash
+# Retomar a conversa mais recente do diretório atual
+codex resume --last
+```
+
+### Template de bloco de estado para o arquivo de contexto
+
+Adicione uma seção como esta ao seu `CLAUDE.md` / `GEMINI.md` / `AGENTS.md` e peça ao assistente para atualizá-la regularmente:
+
+```markdown
+## Estado Atual do Desenvolvimento
+
+Última atualização: 2025-01-15
+
+### Em andamento
+- local_relatorios — implementando task de cache (build_cache_task.php)
+  - Tabela local_relatorios_cache criada ✅
+  - Task agendada criada ✅
+  - Lógica de preenchimento: pendente ⏳
+
+### Próximos passos
+1. Implementar a query de participação em build_cache_task.php
+2. Criar a página de relatório (index.php)
+3. Adicionar capability local/relatorios:viewreport
+
+### Decisões tomadas
+- Cache com TTL de 24h (registros com timegenerated > now - 86400 são reconstruídos)
+- Relatório acessível apenas para managers e editingteachers
+```
+
+---
+
 ## ➡️ Próximos Passos
 
 - [Referência de Tools](../../reference/tools.md) — parâmetros completos de todas as tools

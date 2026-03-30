@@ -1,61 +1,95 @@
-🌐 [Português](../../pt-br/prompts/debugging.md) | **English**
-🏠 [Home](../index.md)
-
 # Debugging Prompts
 
-Specialized prompts for diagnosing errors, analyzing execution flows, and migrating legacy Moodle code.
+[🇧🇷 Leia em Português](../../pt-br/prompts/debugging.md)  |  [← Back to Index](../index.md)
 
 ---
 
-## 🔍 Active Error Diagnosis
+Prompts for debugging Moodle plugin errors with full context.
 
-Helps identify the root cause of a specific error.
+## Error diagnosis
 
-**Example Prompt:**
+```
+The plugin local_meuplugin throws this error:
+"Table 'mdl_local_meuplugin_data' doesn't exist"
+It happens when a teacher opens the settings page.
+What is the root cause and how do I fix it?
+```
 
-> "The plugin `local_myplugin` is generating this error: 'Table mdl_local_myplugin_data doesn't exist'. It happens when a teacher opens the settings page. What is the root cause and how do I fix it?"
+```
+local_meuplugin is triggering:
+"Call to undefined method local_meuplugin\output\renderer::render_summary()"
+Trace where render_summary should be defined based on the plugin structure.
+```
 
----
+```
+The scheduled task \local_meuplugin\task\cleanup_task is failing
+with "Permission denied" on cron runs. What file permissions or
+capability definitions could be causing this?
+```
 
-## 🔄 Execution Flow Analysis
+## Runtime flow analysis
 
-Useful for understanding complex or legacy plugins.
+```
+Analyze the runtime flow of local_meuplugin. Starting from the
+main entry points, trace what happens when a teacher accesses
+the plugin's main page.
+```
 
-**Example Prompt:**
+## Hook API migration warnings
 
-> "Analyze the execution flow of `local_myplugin`. Starting from the main entry points, trace what happens when a teacher accesses the plugin's main page."
+```
+Check local_meuplugin for legacy lib.php callbacks that have
+been replaced by the Hook API in Moodle 4.3+.
+For each one found, show the migration steps.
+```
 
----
+## Using the debug_plugin prompt
 
-## 🎣 Migration to the Hook API (Moodle 4.3+)
+The built-in `debug_plugin` MCP prompt auto-detects the error type:
 
-Keep your plugin modernized.
+```
+debug_plugin
+  plugin="local_meuplugin"
+  error="Error: Table 'mdl_local_meuplugin_data' doesn't exist"
+  context="Occurs when a teacher opens the plugin settings page"
+```
 
-**Example Prompt:**
+Available as `/debug_plugin` slash command in Gemini Code Assist Agent mode.
 
-> "Check `local_myplugin` for legacy callbacks in `lib.php` that were replaced by the Hook API in Moodle 4.3+. For each one found, show the migration steps."
+## Maintaining Context in Long Debug Sessions
 
----
+Complex debugging can require multiple iterations. To maintain continuity:
 
-## ⚙️ Task and Permission Errors
+```
+Load the context for local_myplugin.
+Continuing yesterday's debug: the "Table doesn't exist" error for mdl_local_myplugin_data.
+Already checked: db/install.xml is correct and the plugin was reinstalled.
+The error persists only in course context (CONTEXT_COURSE).
+Continue the investigation from here.
+```
 
-Solve problems that only happen during cron execution.
+When the root cause is found, record it for future reference:
 
-**Example Prompt:**
+```
+Update CLAUDE.md recording: the "Table doesn't exist" error in local_myplugin
+was caused by X. Solution applied: Y.
+```
 
-> "The scheduled task `\local_myplugin\task\cleanup_task` is failing with 'Permission denied' when cron runs. Which file permissions or capabilities could be causing this?"
-
----
-
-## 🛠️ Using the `debug_plugin` Tool
-
-With MCP active, you can provide the error log directly:
+**Gemini CLI** — to resume the debug session exactly where you left off:
 
 ```bash
-debug_plugin
-  plugin="local_myplugin"
-  error="Error: Table 'mdl_local_myplugin_data' doesn't exist"
-  context="Occurs when saving the settings form."
+/chat save debug-local-myplugin
+# Next session:
+/chat resume debug-local-myplugin
 ```
+
+**OpenAI Codex** — to resume the most recent session:
+
+```bash
+codex resume --last
+```
+
+
+---
 
 [← Back to Index](../index.md)
