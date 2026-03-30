@@ -65,12 +65,12 @@ show_menu() {
     echo -e "${NC}"
     echo "  Selecione uma opção:"
     echo ""
-    echo "  ${CYAN}1.${NC} Instalar Claude Code (CLI)"
-    echo "  ${CYAN}2.${NC} Instalar Gemini Code Assist (CLI)"
-    echo "  ${CYAN}3.${NC} Instalar OpenAI Codex (CLI)"
-    echo "  ${CYAN}4.${NC} Gerar arquivo de instruções (CLAUDE.md / GEMINI.md / AGENTS.md)"
+    echo -e "  ${CYAN}1.${NC} Instalar Claude Code (CLI)"
+    echo -e "  ${CYAN}2.${NC} Instalar Gemini Code Assist (CLI)"
+    echo -e "  ${CYAN}3.${NC} Instalar OpenAI Codex (CLI)"
+    echo -e "  ${CYAN}4.${NC} Gerar arquivo de instruções (CLAUDE.md / GEMINI.md / AGENTS.md)"
     echo ""
-    echo "  ${CYAN}0.${NC} Sair"
+    echo -e "  ${CYAN}0.${NC} Sair"
     echo ""
     read -rp "  Opção: " choice
     echo ""
@@ -270,9 +270,9 @@ generate_instructions() {
     # ── Escolher tipo de arquivo ──────────────────────────────────────────────
     echo "  Qual arquivo deseja criar?"
     echo ""
-    echo "  ${CYAN}1.${NC} CLAUDE.md    — Claude Code"
-    echo "  ${CYAN}2.${NC} GEMINI.md    — Gemini Code Assist"
-    echo "  ${CYAN}3.${NC} AGENTS.md    — OpenAI Codex"
+    echo -e "  ${CYAN}1.${NC} CLAUDE.md    — Claude Code"
+    echo -e "  ${CYAN}2.${NC} GEMINI.md    — Gemini Code Assist"
+    echo -e "  ${CYAN}3.${NC} AGENTS.md    — OpenAI Codex"
     echo ""
     read -rp "  Tipo: " file_type
 
@@ -291,8 +291,8 @@ generate_instructions() {
 
     # ── Versão do Moodle ──────────────────────────────────────────────────────
     echo "  Versão do Moodle:"
-    echo "  ${CYAN}1.${NC} 4.1    ${CYAN}2.${NC} 4.2    ${CYAN}3.${NC} 4.3    ${CYAN}4.${NC} 4.4    ${CYAN}5.${NC} 4.5"
-    echo "  ${CYAN}6.${NC} Outra (informar manualmente)"
+    echo -e "  ${CYAN}1.${NC} 4.1    ${CYAN}2.${NC} 4.2    ${CYAN}3.${NC} 4.3    ${CYAN}4.${NC} 4.4    ${CYAN}5.${NC} 4.5"
+    echo -e "  ${CYAN}6.${NC} Outra (informar manualmente)"
     echo ""
     read -rp "  Versão: " ver_choice
 
@@ -318,10 +318,10 @@ generate_instructions() {
     # ── Modo: instalação específica ou modelo ─────────────────────────────────
     echo "  Modo de criação:"
     echo ""
-    echo "  ${CYAN}1.${NC} Instalação específica — informe o caminho e o arquivo"
+    echo -e "  ${CYAN}1.${NC} Instalação específica — informe o caminho e o arquivo"
     echo "     será criado diretamente na raiz do Moodle"
     echo ""
-    echo "  ${CYAN}2.${NC} Modelo — cria um arquivo modelo no diretório atual"
+    echo -e "  ${CYAN}2.${NC} Modelo — cria um arquivo modelo no diretório atual"
     echo "     para você ajustar e copiar para cada instalação"
     echo ""
     read -rp "  Modo: " mode_choice
