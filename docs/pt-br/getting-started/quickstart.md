@@ -73,8 +73,28 @@ args    = ["-y", "moodle-dev-mcp"]
 env     = { MOODLE_PATH = "/var/www/html/moodle" }
 ```
 
+### OpenCode
+
+Crie ou edite `opencode.json` na raiz da sua instalação Moodle:
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "moodle-dev-mcp": {
+      "type": "local",
+      "command": "npx",
+      "args": ["-y", "moodle-dev-mcp"],
+      "env": {
+        "MOODLE_PATH": "/var/www/html/moodle"
+      }
+    }
+  }
+}
+```
+
 > Para instruções detalhadas de cada cliente — incluindo configuração de PATH para gerenciadores de versão como nvm, mise e asdf — veja os guias completos:
-> [Claude Code](../guides/clients/claude-code.md) · [Gemini Code Assist](../guides/clients/gemini-code-assist.md) · [OpenAI Codex](../guides/clients/codex.md)
+> [Claude Code](../guides/clients/claude-code.md) · [Gemini Code Assist](../guides/clients/gemini-code-assist.md) · [OpenAI Codex](../guides/clients/codex.md) · [OpenCode](../guides/clients/opencode.md)
 
 ---
 

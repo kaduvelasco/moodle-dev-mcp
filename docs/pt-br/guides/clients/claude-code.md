@@ -206,6 +206,8 @@ O Claude chamará a tool `doctor` e retornará um relatório com o status do ser
 ## ➡️ Próximos Passos
 
 - [Gemini Code Assist](./gemini-code-assist.md) — guia equivalente para VS Code
+- [OpenAI Codex](./codex.md) — CLI da OpenAI com configuração TOML
+- [OpenCode](./opencode.md) — agente open source com interface TUI
 - [Exemplos de workflows](../workflows/examples.md) — casos de uso reais e prompts prontos
 - [Referência de Tools](../../reference/tools.md) — parâmetros completos de todas as tools
 - [Voltar ao Índice](../../index.md)

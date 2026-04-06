@@ -207,6 +207,7 @@ O Codex suporta apenas **stdio** para servidores locais. O `moodle-dev-mcp` usa 
 
 - [Claude Code](./claude-code.md) — CLI da Anthropic com configuração JSON
 - [Gemini Code Assist](./gemini-code-assist.md) — extensão VS Code com Agent Mode
+- [OpenCode](./opencode.md) — agente open source com interface TUI
 - [Exemplos de workflows](../workflows/examples.md) — prompts prontos para cenários reais
 - [Referência de Tools](../../reference/tools.md) — parâmetros completos de todas as tools
 - [Voltar ao Índice](../../index.md)

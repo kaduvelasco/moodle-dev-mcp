@@ -46,6 +46,24 @@ claude mcp add moodle-dev-mcp \
 }
 ```
 
+**Configuração do cliente de IA (OpenCode — `opencode.json` na raiz do Moodle):**
+
+```json
+{
+    "$schema": "https://opencode.ai/config.json",
+    "mcp": {
+        "moodle-dev-mcp": {
+            "type": "local",
+            "command": "npx",
+            "args": ["-y", "moodle-dev-mcp"],
+            "env": {
+                "MOODLE_PATH": "/home/usuario/workspace/www/html/moodle"
+            }
+        }
+    }
+}
+```
+
 **Inicializando o contexto:**
 
 Com o cliente configurado, peça ao assistente de IA:
@@ -170,6 +188,7 @@ docker compose restart moodle-dev-mcp
 
 - [Claude Code](../clients/claude-code.md) — configuração detalhada
 - [Gemini Code Assist](../clients/gemini-code-assist.md) — configuração detalhada
-- [OpenAi Codex](../clients/codex.md) — configuração detalhada
+- [OpenAI Codex](../clients/codex.md) — configuração detalhada
+- [OpenCode](../clients/opencode.md) — configuração detalhada
 - [Problemas Comuns](../../troubleshooting/common-issues.md) — erros de permissão e PATH
 - [Voltar ao Índice](../../index.md)

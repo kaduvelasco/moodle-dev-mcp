@@ -240,7 +240,9 @@ Certifique-se de que `MOODLE_PATH` aponta para o diretório que contém o arquiv
 
 ## ➡️ Próximos Passos
 
-- [Claude Code](./claude-code.md) — guia equivalente para o CLI da Anthropic
+- [Claude Code](./claude-code.md) — CLI da Anthropic com suporte nativo a MCP
+- [OpenAI Codex](./codex.md) — CLI da OpenAI com configuração TOML
+- [OpenCode](./opencode.md) — agente open source com interface TUI
 - [Exemplos de workflows](../workflows/examples.md) — casos de uso reais e prompts prontos
 - [Referência de Tools](../../reference/tools.md) — parâmetros completos de todas as tools
 - [Problemas Comuns](../../troubleshooting/common-issues.md) — troubleshooting detalhado

@@ -59,6 +59,24 @@ claude mcp add moodle-dev-mcp \
 }
 ```
 
+### AI Client Configuration (OpenCode — `opencode.json` at the Moodle root)
+
+```json
+{
+    "$schema": "https://opencode.ai/config.json",
+    "mcp": {
+        "moodle-dev-mcp": {
+            "type": "local",
+            "command": "npx",
+            "args": ["-y", "moodle-dev-mcp"],
+            "env": {
+                "MOODLE_PATH": "/home/user/workspace/www/html/moodle"
+            }
+        }
+    }
+}
+```
+
 ---
 
 ### Initializing the context
@@ -209,6 +227,7 @@ docker compose restart moodle-dev-mcp
 
 - [Claude Code](../clients/claude-code.md) — detailed configuration
 - [Gemini Code Assist](../clients/gemini-code-assist.md) — detailed configuration
-- [OpenAi Codex](../clients/codex.md) — detailed configuration
+- [OpenAI Codex](../clients/codex.md) — detailed configuration
+- [OpenCode](../clients/opencode.md) — detailed configuration
 - [Common Issues](../../troubleshooting/common-issues.md) — permission and PATH errors
 - [Back to Index](../../index.md)

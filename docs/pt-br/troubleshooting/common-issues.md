@@ -90,6 +90,22 @@ env_vars = ["PATH"]
 env      = { MOODLE_PATH = "/home/usuario/workspace/www/html/moodle" }
 ```
 
+**OpenCode (`opencode.json` na raiz do Moodle):**
+```json
+{
+  "mcp": {
+    "moodle-dev-mcp": {
+      "type": "local",
+      "command": "/home/usuario/.nvm/versions/node/v22.0.0/bin/npx",
+      "args": ["-y", "moodle-dev-mcp"],
+      "env": {
+        "MOODLE_PATH": "/home/usuario/workspace/www/html/moodle"
+      }
+    }
+  }
+}
+```
+
 ---
 
 ### Gemini travado em "Connecting..."
@@ -305,13 +321,13 @@ Nomear a tool explicitamente garante que a IA a utilize em vez de responder com 
 Se o seu problema não está listado aqui:
 
 1. Peça ao assistente: _"Execute o doctor do moodle-dev-mcp"_ e copie a saída completa
-2. Anote qual cliente de IA está usando (Claude Code, Gemini Code Assist) e a versão
+2. Anote qual cliente de IA está usando (Claude Code, Gemini Code Assist, OpenAI Codex, OpenCode) e a versão
 3. Abra uma **Issue** no GitHub: [github.com/kaduvelasco/moodle-dev-mcp/issues](https://github.com/kaduvelasco/moodle-dev-mcp/issues)
 4. Descreva os passos para reproduzir o erro e inclua a saída do `doctor`
 
 ---
 
-> **Dica:** Reiniciar o IDE ou o processo do cliente de IA resolve boa parte dos problemas de travamento do servidor MCP — especialmente após editar arquivos de configuração como `~/.claude.json` ou `~/.gemini/settings.json`.
+> **Dica:** Reiniciar o IDE ou o processo do cliente de IA resolve boa parte dos problemas de travamento do servidor MCP — especialmente após editar arquivos de configuração como `~/.claude.json`, `~/.gemini/settings.json`, `~/.codex/config.toml` ou `opencode.json`.
 
 ---
 

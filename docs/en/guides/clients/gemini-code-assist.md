@@ -245,7 +245,9 @@ Make sure `MOODLE_PATH` points to the directory containing `version.php`. The se
 
 ## ➡️ Next Steps
 
-- [Claude Code](./claude-code.md) — equivalent guide for Anthropic's CLI
+- [Claude Code](./claude-code.md) — Anthropic's CLI with native MCP support
+- [OpenAI Codex](./codex.md) — OpenAI's CLI with TOML configuration
+- [OpenCode](./opencode.md) — open-source agent with TUI interface
 - [Workflow Examples](../workflows/examples.md) — real-world use cases and ready-to-use prompts
 - [Tools Reference](../../reference/tools.md) — complete parameters for all tools
 - [Common Issues](../../troubleshooting/common-issues.md) — detailed troubleshooting

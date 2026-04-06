@@ -41,6 +41,7 @@ Configure the server in your preferred AI assistant.
 - [Claude Code](./guides/clients/claude-code.md)
 - [Gemini Code Assist](./guides/clients/gemini-code-assist.md)
 - [OpenAI Codex](./guides/clients/codex.md)
+- [OpenCode](./guides/clients/opencode.md)
 
 ### Environments
 

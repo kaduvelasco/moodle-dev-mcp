@@ -206,6 +206,8 @@ Claude will call the `doctor` tool and return a report with server status, Moodl
 ## ➡️ Next Steps
 
 - [Gemini Code Assist](./gemini-code-assist.md) — equivalent guide for VS Code
+- [OpenAI Codex](./codex.md) — OpenAI's CLI with TOML configuration
+- [OpenCode](./opencode.md) — open-source agent with TUI interface
 - [Workflow Examples](../workflows/examples.md) — real-world use cases and ready-to-use prompts
 - [Tools Reference](../../reference/tools.md) — complete parameters for all tools
 - [Back to Index](../../index.md)

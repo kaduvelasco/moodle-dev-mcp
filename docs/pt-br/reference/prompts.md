@@ -152,6 +152,8 @@ O erro aparece somente na página de relatórios.
 |---------|-------------|
 | **Claude Code** | Em linguagem natural: _"Use o scaffold_plugin para..."_ ou com a sintaxe de parâmetros diretamente no chat |
 | **Gemini Code Assist (Agent Mode)** | Slash command: `/scaffold_plugin`, `/review_plugin`, `/debug_plugin` — com autocomplete de parâmetros |
+| **OpenAI Codex** | Em linguagem natural no chat, citando o nome do prompt: _"Execute o scaffold_plugin com type='local'..."_ |
+| **OpenCode** | Em linguagem natural no chat, citando o nome do prompt: _"Use o review_plugin com foco em segurança..."_ |
 | **Cursor** | Em linguagem natural no chat, citando o nome do prompt: _"Execute o review_plugin com foco em segurança..."_ |
 
 > No Gemini Code Assist, os slash commands só estão disponíveis no **Agent Mode**. No chat padrão, use linguagem natural.

@@ -68,7 +68,8 @@ show_menu() {
     echo -e "  ${CYAN}1.${NC} Instalar Claude Code (CLI)"
     echo -e "  ${CYAN}2.${NC} Instalar Gemini Code Assist (CLI)"
     echo -e "  ${CYAN}3.${NC} Instalar OpenAI Codex (CLI)"
-    echo -e "  ${CYAN}4.${NC} Gerar arquivo de instruções (CLAUDE.md / GEMINI.md / AGENTS.md)"
+    echo -e "  ${CYAN}4.${NC} Instalar OpenCode (CLI)"
+    echo -e "  ${CYAN}5.${NC} Gerar arquivo de instruções (CLAUDE.md / GEMINI.md / AGENTS.md)"
     echo ""
     echo -e "  ${CYAN}0.${NC} Sair"
     echo ""
@@ -263,7 +264,74 @@ install_codex() {
     pause
 }
 
-# ── 4. Gerar arquivo de instruções ────────────────────────────────────────────
+# ── 4. Instalar OpenCode ──────────────────────────────────────────────────────
+install_opencode() {
+    heading "Instalando OpenCode (CLI)"
+
+    info "Verificando dependências..."
+    require_node || { pause; return; }
+    require_npm  || { pause; return; }
+
+    # Verificar se já está instalado
+    if has_cmd opencode; then
+        local current
+        current=$(opencode --version 2>/dev/null | head -1 || echo "desconhecida")
+        warn "OpenCode já está instalado (versão: ${current})."
+        echo ""
+        read -rp "  Deseja reinstalar/atualizar? [s/N]: " confirm
+        [[ "$confirm" =~ ^[sS]$ ]] || { info "Instalação cancelada."; pause; return; }
+    fi
+
+    echo ""
+    echo -e "  ${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    warn "O projeto Lumia Dev oferece uma instalação mais completa do OpenCode,"
+    warn "com integrações e configurações prontas para desenvolvimento Moodle."
+    echo -e "  ${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo ""
+    info "Instalando opencode-ai globalmente..."
+    echo ""
+
+    if npm install -g opencode-ai; then
+        echo ""
+        ok "OpenCode instalado com sucesso!"
+        echo ""
+        info "Versão instalada: $(opencode --version 2>/dev/null | head -1 || echo 'verifique com: opencode --version')"
+    else
+        echo ""
+        fail "Falha na instalação. Tente:"
+        echo "    sudo npm install -g opencode-ai"
+        pause
+        return
+    fi
+
+    echo ""
+    echo -e "  ${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo ""
+    echo "  Próximos passos para usar o moodle-dev-mcp com o OpenCode:"
+    echo ""
+    echo "  1. Crie ou edite opencode.json na raiz da sua instalação Moodle:"
+    echo ""
+    echo -e "  ${CYAN}{"
+    echo '    "$schema": "https://opencode.ai/config.json",'
+    echo '    "mcp": {'
+    echo '      "moodle-dev-mcp": {'
+    echo '        "type": "local",'
+    echo '        "command": "npx",'
+    echo '        "args": ["-y", "moodle-dev-mcp"],'
+    echo '        "env": { "MOODLE_PATH": "/seu/caminho/moodle" }'
+    echo '      }'
+    echo '    }'
+    echo -e "  }${NC}"
+    echo ""
+    echo "  2. Inicie o OpenCode no diretório da instalação Moodle:"
+    echo -e "     ${CYAN}cd /seu/caminho/moodle && opencode${NC}"
+    echo ""
+    echo -e "  ${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+
+    pause
+}
+
+# ── 5. Gerar arquivo de instruções ────────────────────────────────────────────
 generate_instructions() {
     heading "Gerar Arquivo de Instruções"
 
@@ -273,6 +341,7 @@ generate_instructions() {
     echo -e "  ${CYAN}1.${NC} CLAUDE.md    — Claude Code"
     echo -e "  ${CYAN}2.${NC} GEMINI.md    — Gemini Code Assist"
     echo -e "  ${CYAN}3.${NC} AGENTS.md    — OpenAI Codex"
+    echo -e "  ${CYAN}4.${NC} AGENTS.md    — OpenCode"
     echo ""
     read -rp "  Tipo: " file_type
 
@@ -280,6 +349,7 @@ generate_instructions() {
         1) filename="CLAUDE.md";  client="Claude Code" ;;
         2) filename="GEMINI.md";  client="Gemini Code Assist" ;;
         3) filename="AGENTS.md";  client="OpenAI Codex" ;;
+        4) filename="AGENTS.md";  client="OpenCode" ;;
         *)
             warn "Opção inválida."
             pause
@@ -695,7 +765,8 @@ main() {
             1) install_claude_code ;;
             2) install_gemini ;;
             3) install_codex ;;
-            4) generate_instructions ;;
+            4) install_opencode ;;
+            5) generate_instructions ;;
             0|q|Q)
                 echo -e "  ${GREEN}Até logo!${NC}\n"
                 exit 0

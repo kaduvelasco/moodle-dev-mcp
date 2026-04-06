@@ -24,6 +24,7 @@ Você também precisará de um **cliente MCP compatível** para interagir com o 
 - [Claude Code](../guides/clients/claude-code.md)
 - [Gemini Code Assist](../guides/clients/gemini-code-assist.md)
 - [OpenAI Codex](../guides/clients/codex.md)
+- [OpenCode](../guides/clients/opencode.md)
 
 ---
 
@@ -106,7 +107,7 @@ Run the moodle-dev-mcp doctor
 
 A IA chamará a tool `doctor` via protocolo MCP e retornará um relatório com o status do servidor: versão detectada do Moodle, caminho configurado, atualidade dos índices e ferramentas opcionais disponíveis.
 
-> **Nota:** o `doctor` é uma tool MCP, não um comando CLI. Ele só pode ser executado dentro de uma sessão ativa com um cliente compatível (Claude Code ou Gemini Code Assist).
+> **Nota:** o `doctor` é uma tool MCP, não um comando CLI. Ele só pode ser executado dentro de uma sessão ativa com um cliente compatível (Claude Code, Gemini Code Assist, OpenAI Codex ou OpenCode).
 
 ---
 
@@ -117,6 +118,7 @@ Com o servidor instalado, configure seu cliente MCP:
 - [Configurar Claude Code](../guides/clients/claude-code.md)
 - [Configurar Gemini Code Assist](../guides/clients/gemini-code-assist.md)
 - [Configurar OpenAI Codex](../guides/clients/codex.md)
+- [Configurar OpenCode](../guides/clients/opencode.md)
 
 Ou pule direto para o uso:
 

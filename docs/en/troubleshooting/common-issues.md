@@ -90,6 +90,22 @@ env_vars = ["PATH"]
 env      = { MOODLE_PATH = "/home/user/workspace/www/html/moodle" }
 ```
 
+**OpenCode (`opencode.json` at the Moodle root):**
+```json
+{
+  "mcp": {
+    "moodle-dev-mcp": {
+      "type": "local",
+      "command": "/home/user/.nvm/versions/node/v22.0.0/bin/npx",
+      "args": ["-y", "moodle-dev-mcp"],
+      "env": {
+        "MOODLE_PATH": "/home/user/workspace/www/html/moodle"
+      }
+    }
+  }
+}
+```
+
 ---
 
 ### Gemini stuck at "Connecting..."
@@ -303,13 +319,13 @@ Naming the tool explicitly ensures the AI uses it instead of responding with gen
 If your problem is not listed here:
 
 1. Ask your assistant: _"Run the moodle-dev-mcp doctor"_ and copy the full output
-2. Note which AI client you are using (Claude Code, Gemini Code Assist, OpenAI Codex) and the version
+2. Note which AI client you are using (Claude Code, Gemini Code Assist, OpenAI Codex, OpenCode) and the version
 3. Open an **Issue** on GitHub: [github.com/kaduvelasco/moodle-dev-mcp/issues](https://github.com/kaduvelasco/moodle-dev-mcp/issues)
 4. Describe the steps to reproduce the error and include the `doctor` output
 
 ---
 
-> **Tip:** Restarting the IDE or the AI client process resolves most MCP server hang issues — especially after editing configuration files like `~/.claude.json` or `~/.gemini/settings.json`.
+> **Tip:** Restarting the IDE or the AI client process resolves most MCP server hang issues — especially after editing configuration files like `~/.claude.json`, `~/.gemini/settings.json`, `~/.codex/config.toml`, or `opencode.json`.
 
 ---
 
