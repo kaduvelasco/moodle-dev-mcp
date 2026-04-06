@@ -174,11 +174,12 @@ Para detalhes completos de parâmetros e exemplos, veja a [Referência de Tools]
 
 ## 🔌 Clientes MCP compatíveis
 
-| Cliente            | Suporte    | Guia de configuração                                          |
-| ------------------ | ---------- | ------------------------------------------------------------- |
-| Claude Code        | ✅ Oficial | [Ver guia](./docs/pt-br/guides/clients/claude-code.md)        |
-| Gemini Code Assist | ✅ Oficial | [Ver guia](./docs/pt-br/guides/clients/gemini-code-assist.md) |
-| OpenAI Codex       | ✅ Oficial | [Ver guia](./docs/pt-br/guides/clients/codex.md)              |
+| Cliente            | Suporte    | Guia de configuração                                          | Testado |
+| ------------------ | ---------- | ------------------------------------------------------------- | ------- |
+| Claude Code        | ✅ Oficial | [Ver guia](./docs/pt-br/guides/clients/claude-code.md)        | Sim     |
+| Gemini Code Assist | ✅ Oficial | [Ver guia](./docs/pt-br/guides/clients/gemini-code-assist.md) | Sim     |
+| OpenAI Codex       | ✅ Oficial | [Ver guia](./docs/pt-br/guides/clients/codex.md)              | Não     |
+| OpenCode           | ✅ Oficial | [Ver guia](./docs/pt-br/guides/clients/opencode.md)           | Sim     |
 
 > Outros clientes MCP compatíveis com o protocolo `stdio` devem funcionar, mas não são testados oficialmente.
 
