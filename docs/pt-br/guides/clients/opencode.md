@@ -58,15 +58,16 @@ Crie ou edite `opencode.json` na raiz da sua instalação Moodle:
   "mcp": {
     "moodle-dev-mcp": {
       "type": "local",
-      "command": "npx",
-      "args": ["-y", "moodle-dev-mcp"],
-      "env": {
+      "command": ["npx", "-y", "moodle-dev-mcp"],
+      "environment": {
         "MOODLE_PATH": "/home/usuario/workspace/www/html/moodle"
       }
     }
   }
 }
 ```
+
+> **Atenção:** O OpenCode usa `"command"` como **array** (não string) e `"environment"` (não `"env"`). O campo `"args"` separado não é suportado — incluir campos inválidos gera o erro `Configuration is invalid`.
 
 ### Opção 2 — Configuração global
 
@@ -78,9 +79,8 @@ Crie ou edite `~/.config/opencode/config.json`:
   "mcp": {
     "moodle-dev-mcp": {
       "type": "local",
-      "command": "npx",
-      "args": ["-y", "moodle-dev-mcp"],
-      "env": {
+      "command": ["npx", "-y", "moodle-dev-mcp"],
+      "environment": {
         "MOODLE_PATH": "/home/usuario/workspace/www/html/moodle"
       }
     }
@@ -90,7 +90,7 @@ Crie ou edite `~/.config/opencode/config.json`:
 
 ### Problema com nvm / mise / asdf
 
-O OpenCode pode não herdar o PATH do seu shell. Se `npx` não for encontrado, especifique o caminho absoluto:
+O OpenCode pode não herdar o PATH do seu shell. Se `npx` não for encontrado, especifique o caminho absoluto como primeiro elemento do array `command`:
 
 ```json
 {
@@ -98,9 +98,8 @@ O OpenCode pode não herdar o PATH do seu shell. Se `npx` não for encontrado, e
   "mcp": {
     "moodle-dev-mcp": {
       "type": "local",
-      "command": "/home/usuario/.nvm/versions/node/v22.0.0/bin/npx",
-      "args": ["-y", "moodle-dev-mcp"],
-      "env": {
+      "command": ["/home/usuario/.nvm/versions/node/v22.0.0/bin/npx", "-y", "moodle-dev-mcp"],
+      "environment": {
         "MOODLE_PATH": "/home/usuario/workspace/www/html/moodle"
       }
     }
