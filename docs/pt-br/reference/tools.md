@@ -292,6 +292,57 @@ com a configuração atual.
 
 ---
 
+## 📦 Empacotamento e Publicação
+
+### `release_plugin`
+
+Empacota um plugin Moodle em um arquivo ZIP versionado pronto para distribuição.
+
+| Parâmetro | Tipo | Obrigatório | Descrição |
+|-----------|------|:-----------:|-----------|
+| `component` | string | ✅ | Frankenstyle do plugin no formato `{type}_{name}` — ex: `local_caedauth` |
+
+**O que faz:** lê a versão do `version.php` (`$plugin->version`), cria um arquivo ZIP com o nome `{component}_{version}.zip` (ex: `local_caedauth_2026041000.zip`) no diretório de trabalho atual, excluindo do arquivo todos os arquivos gerados pelo moodle-dev-mcp e arquivos de contexto de IA.
+
+**Arquivos excluídos do ZIP** (mantidos no projeto):
+
+| Arquivo | Motivo |
+|---------|--------|
+| `PLUGIN_AI_CONTEXT.md`, `PLUGIN_ARCHITECTURE.md`, `PLUGIN_CALLBACK_INDEX.md`, `PLUGIN_CONTEXT.md`, `PLUGIN_DB_TABLES.md`, `PLUGIN_DEPENDENCIES.md`, `PLUGIN_ENDPOINT_INDEX.md`, `PLUGIN_EVENTS.md`, `PLUGIN_FUNCTION_INDEX.md`, `PLUGIN_RUNTIME_FLOW.md`, `PLUGIN_STRUCTURE.md` | Gerados pelo moodle-dev-mcp |
+| `CLAUDE.md`, `GEMINI.md`, `AGENTS.md` | Arquivos de contexto de assistentes de IA |
+| `.moodle-mcp-dev` | Marcador de desenvolvimento |
+
+> Se algum desses arquivos não existir no plugin, ele é silenciosamente ignorado — nenhum erro é gerado.
+
+**Frases de acionamento:**
+```
+Gere uma versão do plugin local_caedauth
+Publique o plugin local_caedauth
+```
+
+**Exemplo:**
+```
+Gere uma versão do plugin local_caedauth para distribuição.
+```
+
+**Exemplo de saída:**
+```
+✅ Plugin packaged successfully: local_caedauth_2026041000.zip
+
+Component: local_caedauth
+Version:   2026041000
+Output:    /diretório/atual/local_caedauth_2026041000.zip
+Source:    /var/www/moodle/local/caedauth
+
+Excluded from ZIP (kept in project):
+  ✖ PLUGIN_AI_CONTEXT.md
+  ✖ PLUGIN_STRUCTURE.md
+  ✖ CLAUDE.md
+  ✖ .moodle-mcp-dev
+```
+
+---
+
 ## Veja também
 
 - [Referência de Resources](./resources.md) — dados que a IA lê passivamente

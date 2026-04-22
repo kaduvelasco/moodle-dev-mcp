@@ -12,6 +12,7 @@
  *     - search_plugins, search_api, get_plugin_info, list_dev_plugins
  *     - doctor
  *     - explain_plugin
+ *     - release_plugin
  *
  *   Resources:
  *     - moodle://context, index, workspace, api-index, events-index,
@@ -33,6 +34,7 @@ import { registerUpdateTool }      from "./tools/update.js";
 import { registerSearchTools }     from "./tools/search.js";
 import { registerDoctorTool }      from "./tools/doctor.js";
 import { registerExplainTool }     from "./tools/explain.js";
+import { registerReleaseTool }     from "./tools/release.js";
 
 import { registerMoodleResources } from "./resources/moodle.js";
 import { registerPluginResources } from "./resources/plugin.js";
@@ -58,6 +60,7 @@ export async function createServer(): Promise<McpServer> {
   registerSearchTools(server);
   registerDoctorTool(server);
   registerExplainTool(server);
+  registerReleaseTool(server);
 
   // Resources
   registerMoodleResources(server);

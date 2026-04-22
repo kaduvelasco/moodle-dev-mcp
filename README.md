@@ -142,23 +142,24 @@ The server **never communicates with external servers** and **never modifies Moo
 
 ## 📊 Project status
 
-> **⚠️ Beta:** the server is functional and ready for use in development environments, but APIs and behaviors may change between minor versions until the stable v1.0.
+> **v1.1.0:** the server is functional and ready for use in development environments.
 
 ### Available Tools
 
-| Tool                      | Description                                                   | Status       |
-| ------------------------- | ------------------------------------------------------------- | ------------ |
-| `init_moodle_context`     | Initializes the complete context of the Moodle installation   | ✅ Available |
-| `generate_plugin_context` | Generates the complete AI context for a specific plugin       | ✅ Available |
-| `plugin_batch`            | Generates or updates context for multiple plugins at once     | ✅ Available |
-| `update_indexes`          | Regenerates global indexes (with intelligent cache by mtime)  | ✅ Available |
-| `watch_plugins`           | Monitors plugins and updates context automatically on save    | ✅ Available |
-| `search_plugins`          | Searches installed plugins by name, component or type         | ✅ Available |
-| `search_api`              | Searches Moodle core API functions by name and visibility     | ✅ Available |
-| `get_plugin_info`         | Loads the complete context of a plugin into the AI session    | ✅ Available |
-| `list_dev_plugins`        | Lists all plugins marked as in development                    | ✅ Available |
-| `doctor`                  | Diagnoses the environment: Node.js, Moodle, indexes and cache | ✅ Available |
-| `explain_plugin`          | Explains the architecture of a plugin, by section or complete | ✅ Available |
+| Tool                      | Description                                                                   | Status       |
+| ------------------------- | ----------------------------------------------------------------------------- | ------------ |
+| `init_moodle_context`     | Initializes the complete context of the Moodle installation                   | ✅ Available |
+| `generate_plugin_context` | Generates the complete AI context for a specific plugin                       | ✅ Available |
+| `plugin_batch`            | Generates or updates context for multiple plugins at once                     | ✅ Available |
+| `update_indexes`          | Regenerates global indexes (with intelligent cache by mtime)                  | ✅ Available |
+| `watch_plugins`           | Monitors plugins and updates context automatically on save                    | ✅ Available |
+| `search_plugins`          | Searches installed plugins by name, component or type                         | ✅ Available |
+| `search_api`              | Searches Moodle core API functions by name and visibility                     | ✅ Available |
+| `get_plugin_info`         | Loads the complete context of a plugin into the AI session                    | ✅ Available |
+| `list_dev_plugins`        | Lists all plugins marked as in development                                    | ✅ Available |
+| `doctor`                  | Diagnoses the environment: Node.js, Moodle, indexes and cache                 | ✅ Available |
+| `explain_plugin`          | Explains the architecture of a plugin, by section or complete                 | ✅ Available |
+| `release_plugin`          | Packages a plugin into a versioned ZIP file ready for distribution            | ✅ Available |
 
 For full details of parameters and examples, see the [Tools Reference](./docs/en/reference/tools.md).
 

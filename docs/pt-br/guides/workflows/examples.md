@@ -275,6 +275,51 @@ no índice de callbacks.
 
 ---
 
+## 8. Empacotando um Plugin para Distribuição
+
+**Cenário:** Você terminou de desenvolver um plugin e quer gerar um ZIP limpo para compartilhar ou instalar em outra instância Moodle.
+
+**Empacotar o plugin:**
+
+```
+Gere uma versão do plugin local_caedauth.
+```
+
+ou
+
+```
+Publique o plugin local_caedauth.
+```
+
+O assistente chamará `release_plugin` com `component="local_caedauth"`, lerá a versão do `version.php` e gerará o arquivo `local_caedauth_2026041000.zip` no diretório de trabalho atual.
+
+**O que é excluído do ZIP** (os arquivos permanecem no projeto):
+
+- `PLUGIN_*.md` — arquivos de contexto gerados pelo moodle-dev-mcp
+- `CLAUDE.md`, `GEMINI.md`, `AGENTS.md` — arquivos de contexto de assistentes de IA
+- `.moodle-mcp-dev` — marcador de desenvolvimento
+
+**Saída esperada:**
+
+```
+✅ Plugin packaged successfully: local_caedauth_2026041000.zip
+
+Component: local_caedauth
+Version:   2026041000
+Output:    /diretório/atual/local_caedauth_2026041000.zip
+Source:    /var/www/moodle/local/caedauth
+
+Excluded from ZIP (kept in project):
+  ✖ PLUGIN_AI_CONTEXT.md
+  ✖ PLUGIN_STRUCTURE.md
+  ✖ CLAUDE.md
+  ✖ .moodle-mcp-dev
+```
+
+> Se o componente não for informado, o assistente pedirá antes de prosseguir.
+
+---
+
 ## 💡 Dicas Gerais
 
 **Seja específico sobre o plugin:**
