@@ -69,7 +69,7 @@ show_menu() {
     echo -e "  ${CYAN}2.${NC} Instalar Gemini Code Assist (CLI)"
     echo -e "  ${CYAN}3.${NC} Instalar OpenAI Codex (CLI)"
     echo -e "  ${CYAN}4.${NC} Instalar OpenCode (CLI)"
-    echo -e "  ${CYAN}5.${NC} Gerar arquivo de instruções (CLAUDE.md / GEMINI.md / AGENTS.md)"
+    echo -e "  ${CYAN}5.${NC} Gerar arquivos de instruções (CLAUDE.md, GEMINI.md e AGENTS.md)"
     echo ""
     echo -e "  ${CYAN}0.${NC} Sair"
     echo ""
@@ -331,31 +331,9 @@ install_opencode() {
     pause
 }
 
-# ── 5. Gerar arquivo de instruções ────────────────────────────────────────────
+# ── 5. Gerar arquivos de instruções ───────────────────────────────────────────
 generate_instructions() {
-    heading "Gerar Arquivo de Instruções"
-
-    # ── Escolher tipo de arquivo ──────────────────────────────────────────────
-    echo "  Qual arquivo deseja criar?"
-    echo ""
-    echo -e "  ${CYAN}1.${NC} CLAUDE.md    — Claude Code"
-    echo -e "  ${CYAN}2.${NC} GEMINI.md    — Gemini Code Assist"
-    echo -e "  ${CYAN}3.${NC} AGENTS.md    — OpenAI Codex"
-    echo -e "  ${CYAN}4.${NC} AGENTS.md    — OpenCode"
-    echo ""
-    read -rp "  Tipo: " file_type
-
-    case "$file_type" in
-        1) filename="CLAUDE.md";  client="Claude Code" ;;
-        2) filename="GEMINI.md";  client="Gemini Code Assist" ;;
-        3) filename="AGENTS.md";  client="OpenAI Codex" ;;
-        4) filename="AGENTS.md";  client="OpenCode" ;;
-        *)
-            warn "Opção inválida."
-            pause
-            return
-            ;;
-    esac
+    heading "Gerar Arquivos de Instruções"
 
     echo ""
 
@@ -397,7 +375,7 @@ generate_instructions() {
     read -rp "  Modo: " mode_choice
 
     local dest_dir
-    local dest_path
+    local -a dest_paths
 
     case "$mode_choice" in
         1)
@@ -417,12 +395,12 @@ generate_instructions() {
             fi
 
             dest_dir="$moodle_path"
-            dest_path="$moodle_path/$filename"
+            dest_paths=("$moodle_path/CLAUDE.md" "$moodle_path/GEMINI.md" "$moodle_path/AGENTS.md")
             ;;
         2)
             moodle_path="/seu/caminho/moodle"
             dest_dir="$(pwd)"
-            dest_path="$(pwd)/${filename%.md}.modelo.md"
+            dest_paths=("$(pwd)/CLAUDE.modelo.md" "$(pwd)/GEMINI.modelo.md" "$(pwd)/AGENTS.modelo.md")
             ;;
         *)
             warn "Opção inválida."
@@ -431,9 +409,17 @@ generate_instructions() {
             ;;
     esac
 
-    # ── Confirmar sobrescrita se arquivo existir ──────────────────────────────
-    if [ -f "$dest_path" ]; then
-        warn "Arquivo já existe: $dest_path"
+    # ── Confirmar sobrescrita se algum arquivo já existir ─────────────────────
+    local existing=()
+    for p in "${dest_paths[@]}"; do
+        [ -f "$p" ] && existing+=("$p")
+    done
+
+    if [ ${#existing[@]} -gt 0 ]; then
+        warn "Os seguintes arquivos já existem:"
+        for p in "${existing[@]}"; do
+            echo "    $p"
+        done
         read -rp "  Deseja sobrescrever? [s/N]: " overwrite
         [[ "$overwrite" =~ ^[sS]$ ]] || { info "Operação cancelada."; pause; return; }
     fi
@@ -445,11 +431,12 @@ generate_instructions() {
         hook_note="- Hook API NÃO disponível nesta versão — use callbacks do lib.php"
     fi
 
-    # ── Gerar conteúdo do arquivo ─────────────────────────────────────────────
-    cat > "$dest_path" << MDEOF
+    # ── Gerar conteúdo e escrever nos três arquivos ───────────────────────────
+    local tmp_content
+    tmp_content=$(cat << MDEOF
 # 🧩 Moodle Plugin Development Rules
 
-> Arquivo de instruções para ${client} — gerado pelo moodle-dev-mcp tools.sh
+> Arquivo de instruções — gerado pelo moodle-dev-mcp tools.sh
 > Moodle ${moodle_version} | Caminho: ${moodle_path}
 
 ---
@@ -741,17 +728,25 @@ class example_test extends \advanced_testcase {
 
 Behat acceptance tests must be placed in \`tests/behat/\`.
 MDEOF
+)
+
+    for p in "${dest_paths[@]}"; do
+        echo "$tmp_content" > "$p"
+    done
 
     echo ""
-    ok "Arquivo criado: ${dest_path}"
+    ok "Arquivos criados:"
+    for p in "${dest_paths[@]}"; do
+        echo "    $p"
+    done
     echo ""
 
     if [ "$mode_choice" = "2" ]; then
-        info "Este é um arquivo modelo. Edite e copie para a raiz"
+        info "Estes são arquivos modelo. Edite e copie para a raiz"
         info "de cada instalação Moodle antes de usar."
     else
-        info "O arquivo foi criado na raiz do Moodle."
-        info "O ${client} irá lê-lo automaticamente ao iniciar cada sessão."
+        info "Os arquivos foram criados na raiz do Moodle."
+        info "Os assistentes de IA irão lê-los automaticamente ao iniciar cada sessão."
     fi
 
     pause
