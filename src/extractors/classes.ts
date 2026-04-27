@@ -78,14 +78,24 @@ function parsePhpFile(filePath: string, root: string): PhpClass[] {
   const lines     = content.split("\n");
   const relFile   = relative(root, filePath);
 
-  for (const line of lines) {
+  for (let li = 0; li < lines.length; li++) {
+    const line = lines[li];
     const kindMatch = KIND_PATTERN.exec(line);
     if (!kindMatch) continue;
 
+    // Join continuation lines up to { to handle multi-line declarations
+    let declaration = line;
+    if (!line.includes("{")) {
+      for (let j = li + 1; j < lines.length && j <= li + 8; j++) {
+        declaration += " " + lines[j].trim();
+        if (lines[j].includes("{")) break;
+      }
+    }
+
     const rawKind      = kindMatch[1].replace(/\s+/g, " ").trim() as ClassKind;
     const name         = kindMatch[2];
-    const extendsMatch = EXTENDS_PATTERN.exec(line);
-    const implMatch    = IMPLEMENTS_PATTERN.exec(line);
+    const extendsMatch = EXTENDS_PATTERN.exec(declaration);
+    const implMatch    = IMPLEMENTS_PATTERN.exec(declaration);
 
     const implNames = implMatch
       ? implMatch[1].split(",").map((s) => s.trim()).filter(Boolean)

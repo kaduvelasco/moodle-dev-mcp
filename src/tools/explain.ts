@@ -23,7 +23,7 @@
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { existsSync, readFileSync } from "fs";
-import { join } from "path";
+import { join, resolve } from "path";
 import { z } from "zod";
 
 import { loadConfig }                from "../config.js";
@@ -88,7 +88,14 @@ export function registerExplainTool(server: McpServer): void {
       // ------------------------------------------------------------------
       // Resolve plugin path
       // ------------------------------------------------------------------
-      const pluginPath = resolvePluginPath(plugin, moodlePath) ?? join(moodlePath, plugin);
+      const pluginPath = resolve(resolvePluginPath(plugin, moodlePath) ?? join(moodlePath, plugin));
+
+      if (!pluginPath.startsWith(resolve(moodlePath) + "/")) {
+        return {
+          content: [{ type: "text" as const, text: "❌ Invalid plugin path: must be within the Moodle installation." }],
+          isError: true,
+        };
+      }
 
       if (!existsSync(pluginPath)) {
         return {

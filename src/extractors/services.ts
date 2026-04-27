@@ -40,18 +40,23 @@ export interface ServicesExtraction {
  * Extracts the $functions = [...] body from a PHP file.
  */
 function extractFunctionsBody(content: string): string | null {
-  const startMatch = content.match(/\$functions\s*=\s*[\[|(array\s*\(]/);
+  const startMatch = content.match(/\$functions\s*=\s*/);
   if (!startMatch || startMatch.index === undefined) return null;
 
-  const startIdx = content.indexOf("[", startMatch.index);
+  let startIdx = -1;
+  for (let i = startMatch.index + startMatch[0].length; i < content.length; i++) {
+    if (content[i] === "[" || content[i] === "(") { startIdx = i; break; }
+  }
   if (startIdx === -1) return null;
 
+  const openChar  = content[startIdx];
+  const closeChar = openChar === "[" ? "]" : ")";
   let depth = 0;
   let end   = -1;
 
   for (let i = startIdx; i < content.length; i++) {
-    if (content[i] === "[") depth++;
-    else if (content[i] === "]") {
+    if (content[i] === openChar) depth++;
+    else if (content[i] === closeChar) {
       depth--;
       if (depth === 0) { end = i; break; }
     }
@@ -69,20 +74,22 @@ function extractFunctionsBody(content: string): string | null {
 function splitFunctionEntries(body: string): Array<{ name: string; body: string }> {
   const entries: Array<{ name: string; body: string }> = [];
 
-  // Match top-level keys: 'name' => [
-  const keyPattern = /['"]([a-zA-Z0-9_]+)['"]\s*=>\s*\[/g;
+  // Match top-level keys: 'name' => [ or 'name' => array(
+  const keyPattern = /['"]([a-zA-Z0-9_]+)['"]\s*=>\s*(\[|array\s*\()/g;
   let match: RegExpExecArray | null;
 
   while ((match = keyPattern.exec(body)) !== null) {
-    const name     = match[1];
-    const blockStart = match.index + match[0].length - 1; // position of the [
+    const name       = match[1];
+    const blockStart = match.index + match[0].length - 1;
+    const openChar   = body[blockStart];
+    const closeChar  = openChar === "[" ? "]" : ")";
 
     let depth = 0;
     let end   = -1;
 
     for (let i = blockStart; i < body.length; i++) {
-      if (body[i] === "[") depth++;
-      else if (body[i] === "]") {
+      if (body[i] === openChar) depth++;
+      else if (body[i] === closeChar) {
         depth--;
         if (depth === 0) { end = i; break; }
       }

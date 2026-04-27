@@ -25,7 +25,8 @@
  *     - scaffold_plugin, review_plugin, debug_plugin
  */
 
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { McpServer }       from "@modelcontextprotocol/sdk/server/mcp.js";
+import { createRequire }   from "module";
 
 import { registerInitTool }        from "./tools/init.js";
 import { registerPluginTool }      from "./tools/plugin.js";
@@ -43,8 +44,11 @@ import { registerScaffoldPrompt }  from "./prompts/scaffold.js";
 import { registerReviewPrompt }    from "./prompts/review.js";
 import { registerDebugPrompt }     from "./prompts/debug.js";
 
+const _require = createRequire(import.meta.url);
+const _pkg     = _require("../package.json") as { version: string };
+
 const SERVER_NAME    = "moodle-mcp";
-const SERVER_VERSION = "1.0.0";
+const SERVER_VERSION = _pkg.version;
 
 export async function createServer(): Promise<McpServer> {
   const server = new McpServer(

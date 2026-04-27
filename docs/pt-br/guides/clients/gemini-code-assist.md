@@ -10,7 +10,7 @@ O **Gemini Code Assist** está disponível como CLI de terminal (`gemini`) e com
 
 ## 🛠️ Configuração do Servidor MCP
 
-### Opção 1 — Via CLI (recomendado)
+### Opção 1 — Via CLI
 
 ```bash
 gemini mcp add moodle-dev-mcp \
@@ -19,14 +19,11 @@ gemini mcp add moodle-dev-mcp \
   --env MOODLE_PATH=/caminho/para/seu/moodle
 ```
 
-Verifique se foi registrado:
+> ⚠️ **Bug conhecido no `gemini mcp add` (v0.39.x):** o comando pode gerar um `settings.json` inválido — `command` fica vazio e os `args` não são separados corretamente. Após executar, **verifique o arquivo gerado** e corrija se necessário (veja [Solução de Problemas](#️-solução-de-problemas)).
+>
+> Prefira a **Opção 2** para uma configuração mais confiável.
 
-```bash
-gemini mcp list
-# → moodle-dev-mcp: npx -y moodle-dev-mcp
-```
-
-### Opção 2 — Editando o settings.json diretamente
+### Opção 2 — Editando o settings.json diretamente (recomendado)
 
 O arquivo de configuração fica em:
 
@@ -214,6 +211,57 @@ Gere o contexto de IA para o plugin local_web_service_test.
 ### Primeiro passo: verificar a conexão
 
 Execute `/mcp` no chat do Agent Mode. Se `moodle-dev-mcp` não aparecer, o problema está na configuração — não no seu prompt.
+
+### O servidor aparece como "Disconnected" após `gemini mcp add`
+
+Causa provável: bug no `gemini mcp add` (v0.39.x) que gera um `settings.json` inválido.
+
+Abra o arquivo `.gemini/settings.json` no diretório do projeto (ou `~/.gemini/settings.json` se usou `--global`) e verifique:
+
+```json
+// ❌ Gerado incorretamente pelo CLI
+{
+  "mcpServers": {
+    "moodle-dev-mcp": {
+      "command": "",
+      "args": ["npx", "-y,moodle-dev-mcp"],
+      "env": { "MOODLE_PATH": "/caminho/para/seu/moodle" }
+    }
+  }
+}
+```
+
+Corrija manualmente com uma destas formas:
+
+**Via NPM (sem nvm/mise/asdf):**
+```json
+{
+  "mcpServers": {
+    "moodle-dev-mcp": {
+      "command": "npx",
+      "args": ["-y", "moodle-dev-mcp"],
+      "env": { "MOODLE_PATH": "/caminho/absoluto/para/seu/moodle" }
+    }
+  }
+}
+```
+
+**Via repositório clonado ou com nvm/mise/asdf (recomendado):**
+```json
+{
+  "mcpServers": {
+    "moodle-dev-mcp": {
+      "command": "/caminho/absoluto/para/node",
+      "args": ["/caminho/absoluto/para/moodle-dev-mcp/dist/index.js"],
+      "env": { "MOODLE_PATH": "/caminho/absoluto/para/seu/moodle" }
+    }
+  }
+}
+```
+
+> Use `which node` no terminal para obter o caminho absoluto do `node`.
+
+Após corrigir, reinicie a sessão do `gemini`.
 
 ### O servidor aparece como "Connecting..." e trava
 

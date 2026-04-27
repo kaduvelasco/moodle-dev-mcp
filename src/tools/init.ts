@@ -19,7 +19,7 @@ import { existsSync } from "fs";
 import { join } from "path";
 import { z } from "zod";
 
-import { saveConfig, loadConfig }  from "../config.js";
+import { saveConfig, loadConfig, getConfigFilePath } from "../config.js";
 import { generateAll }             from "../generators/moodle.js";
 import { detectMoodleVersionFromPath } from "../extractors/moodle-detect.js";
 
@@ -145,6 +145,7 @@ export function registerInitTool(server: McpServer): void {
         "",
         `Moodle path:    ${moodle_path}`,
         `Moodle version: ${moodleVersion}`,
+        `Config file:    ${getConfigFilePath()}`,
         "",
         `Files generated: ${succeeded.length}`,
       ];

@@ -15,7 +15,7 @@
 import { writeFileSync, existsSync }   from "fs";
 import { join, relative }              from "path";
 import { glob }                        from "glob";
-import { execSync }                    from "child_process";
+import { execSync, execFileSync }      from "child_process";
 
 import { extractMoodleApi }                                                   from "../extractors/api.js";
 import { parseEventsPhp }                                                     from "../extractors/events.js";
@@ -791,8 +791,9 @@ export function generateCtags(moodlePath: string): GeneratorResult {
   }
 
   try {
-    execSync(
-      `ctags -R --languages=PHP --exclude=vendor --exclude=node_modules -f "${output}" "${moodlePath}"`,
+    execFileSync(
+      "ctags",
+      ["-R", "--languages=PHP", "--exclude=vendor", "--exclude=node_modules", "-f", output, moodlePath],
       { stdio: "ignore", timeout: 120_000 }
     );
     globalCache.mark(output);

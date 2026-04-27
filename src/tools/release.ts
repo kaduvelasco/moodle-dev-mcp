@@ -64,7 +64,7 @@ function createZip(pluginPath: string, outputPath: string): Promise<void> {
     archive.glob("**/*", {
       cwd:  pluginPath,
       dot:  true,
-      ignore: [...EXCLUDED_FILES],
+      ignore: [...EXCLUDED_FILES, "**/node_modules/**"],
     });
 
     archive.finalize();

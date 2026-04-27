@@ -197,17 +197,22 @@ export function registerDoctorTool(server: McpServer): void {
       lines.push("## Global Index Files");
       lines.push("");
 
+      const indexChecks: CheckResult[] = [];
+
       for (const file of EXPECTED_GLOBAL_FILES) {
         const fullPath = join(config.moodlePath, file);
         const age      = fileAgeDays(fullPath);
 
+        let check: CheckResult;
         if (age === null) {
-          lines.push(formatCheck(fail(file, "missing")));
+          check = fail(file, "missing");
         } else if (age > STALE_THRESHOLD_DAYS) {
-          lines.push(formatCheck(warn(file, `${age} days old — consider running update_indexes`)));
+          check = warn(file, `${age} days old — consider running update_indexes`);
         } else {
-          lines.push(formatCheck(ok(file, `${age === 0 ? "today" : `${age}d ago`}`)));
+          check = ok(file, `${age === 0 ? "today" : `${age}d ago`}`);
         }
+        indexChecks.push(check);
+        lines.push(formatCheck(check));
       }
 
       lines.push("");
@@ -223,6 +228,8 @@ export function registerDoctorTool(server: McpServer): void {
         absolute: true,
         ignore: ["vendor/**", "node_modules/**"],
       });
+
+      const pluginChecks: CheckResult[] = [];
 
       if (devMarkers.length === 0) {
         lines.push("  — No plugins marked as in development.");
@@ -244,13 +251,16 @@ export function registerDoctorTool(server: McpServer): void {
             const fullPath = join(pluginDir, file);
             const age      = fileAgeDays(fullPath);
 
+            let check: CheckResult;
             if (age === null) {
-              lines.push(formatCheck(fail(`  ${file}`, "missing")));
+              check = fail(`  ${file}`, "missing");
             } else if (age > STALE_THRESHOLD_DAYS) {
-              lines.push(formatCheck(warn(`  ${file}`, `${age}d old`)));
+              check = warn(`  ${file}`, `${age}d old`);
             } else {
-              lines.push(formatCheck(ok(`  ${file}`)));
+              check = ok(`  ${file}`);
             }
+            pluginChecks.push(check);
+            lines.push(formatCheck(check));
           }
 
           lines.push("");
@@ -262,6 +272,8 @@ export function registerDoctorTool(server: McpServer): void {
       // --------------------------------------------------------------------
       const allChecks = [
         ...depChecks,
+        ...indexChecks,
+        ...pluginChecks,
       ];
 
       const hasFailures = allChecks.some((c) => c.status === "fail");

@@ -114,20 +114,23 @@ const LEGACY_TO_HOOK_MAP: Record<string, string> = {
 // ---------------------------------------------------------------------------
 
 function extractArrayBody(content: string, varName: string): string | null {
-  const startMatch = content.match(
-    new RegExp(`\\$${varName}\\s*=\\s*[\\[|(array\\s*\\()]`)
-  );
+  const startMatch = content.match(new RegExp(`\\$${varName}\\s*=\\s*`));
   if (!startMatch || startMatch.index === undefined) return null;
 
-  const startIdx = content.indexOf("[", startMatch.index);
+  let startIdx = -1;
+  for (let i = startMatch.index + startMatch[0].length; i < content.length; i++) {
+    if (content[i] === "[" || content[i] === "(") { startIdx = i; break; }
+  }
   if (startIdx === -1) return null;
 
+  const openChar  = content[startIdx];
+  const closeChar = openChar === "[" ? "]" : ")";
   let depth = 0;
   let end   = -1;
 
   for (let i = startIdx; i < content.length; i++) {
-    if (content[i] === "[") depth++;
-    else if (content[i] === "]") {
+    if (content[i] === openChar) depth++;
+    else if (content[i] === closeChar) {
       depth--;
       if (depth === 0) { end = i; break; }
     }

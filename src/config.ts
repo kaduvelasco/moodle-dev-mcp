@@ -22,6 +22,7 @@
 
 import { readFileSync, writeFileSync, existsSync } from "fs";
 import { resolve } from "path";
+import { homedir } from "os";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -45,7 +46,7 @@ const CONFIG_FILENAME = ".moodle-mcp";
 // ---------------------------------------------------------------------------
 
 function getConfigPath(): string {
-  return resolve(process.cwd(), CONFIG_FILENAME);
+  return resolve(homedir(), CONFIG_FILENAME);
 }
 
 function loadFromFile(): MoodleConfig | null {
@@ -55,7 +56,7 @@ function loadFromFile(): MoodleConfig | null {
   const raw    = readFileSync(configPath, "utf-8");
   const parsed: Record<string, string> = {};
 
-  for (const line of raw.split("\n").filter((l) => l.includes("="))) {
+  for (const line of raw.split("\n").filter((l) => l.includes("=") && !l.trimStart().startsWith("#"))) {
     const [key, ...rest] = line.split("=");
     parsed[key.trim()]   = rest.join("=").trim();
   }

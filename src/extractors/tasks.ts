@@ -59,42 +59,71 @@ export interface TasksExtraction {
 // ---------------------------------------------------------------------------
 
 /**
- * Extracts string values for a given PHP array key.
+ * Extracts the $tasks = [...] body from a PHP file.
  */
-function extractStringValues(content: string, key: string): string[] {
-  const pattern = new RegExp(
-    `'${key}'\\s*=>\\s*['"]([^'"]*)['"\\s,]`,
-    "g"
-  );
+function extractTasksBody(content: string): string | null {
+  const startMatch = content.match(/\$tasks\s*=\s*/);
+  if (!startMatch || startMatch.index === undefined) return null;
 
-  const results: string[] = [];
-  let match: RegExpExecArray | null;
+  let startIdx = -1;
+  for (let i = startMatch.index + startMatch[0].length; i < content.length; i++) {
+    if (content[i] === "[" || content[i] === "(") { startIdx = i; break; }
+  }
+  if (startIdx === -1) return null;
 
-  while ((match = pattern.exec(content)) !== null) {
-    results.push(match[1]);
+  const openChar  = content[startIdx];
+  const closeChar = openChar === "[" ? "]" : ")";
+  let depth = 0;
+  let end   = -1;
+
+  for (let i = startIdx; i < content.length; i++) {
+    if (content[i] === openChar) depth++;
+    else if (content[i] === closeChar) {
+      depth--;
+      if (depth === 0) { end = i; break; }
+    }
   }
 
-  return results;
+  if (end === -1) return null;
+  return content.slice(startIdx + 1, end);
 }
 
 /**
- * Extracts integer/boolean values for a given PHP array key.
- * Returns true when value is "1", false when "0".
+ * Splits a PHP array body into individual entry blocks.
+ * Tracks bracket depth to handle nested arrays correctly.
  */
-function extractFlagValues(content: string, key: string): boolean[] {
-  const pattern = new RegExp(
-    `'${key}'\\s*=>\\s*([01])`,
-    "g"
-  );
+function splitIntoBlocks(body: string): string[] {
+  const blocks: string[] = [];
+  let depth = 0;
+  let start = -1;
 
-  const results: boolean[] = [];
-  let match: RegExpExecArray | null;
-
-  while ((match = pattern.exec(content)) !== null) {
-    results.push(match[1] === "1");
+  for (let i = 0; i < body.length; i++) {
+    const ch = body[i];
+    if (ch === "[" || ch === "(") {
+      if (depth === 0) start = i;
+      depth++;
+    } else if (ch === "]" || ch === ")") {
+      depth--;
+      if (depth === 0 && start !== -1) {
+        blocks.push(body.slice(start, i + 1));
+        start = -1;
+      }
+    }
   }
 
-  return results;
+  return blocks;
+}
+
+function extractString(block: string, key: string): string {
+  const match = block.match(
+    new RegExp(`['"]${key}['"]\\s*=>\\s*['"]([^'"]*)['"\\s,]`)
+  );
+  return match ? match[1] : "";
+}
+
+function extractFlag(block: string, key: string): boolean {
+  const match = block.match(new RegExp(`['"]${key}['"]\\s*=>\\s*([01])`));
+  return match ? match[1] === "1" : false;
 }
 
 // ---------------------------------------------------------------------------
@@ -103,38 +132,35 @@ function extractFlagValues(content: string, key: string): boolean[] {
 
 /**
  * Parses a db/tasks.php file and returns all scheduled task definitions.
+ * Each entry is parsed from its own block — missing optional fields (blocking,
+ * disabled) default to false without affecting other entries.
  *
  * @param filePath - Absolute path to the tasks.php file
  */
 export function parseTasksPhp(filePath: string): TasksExtraction | null {
-  if (!existsSync(filePath)) {
-    return null;
-  }
+  if (!existsSync(filePath)) return null;
 
   const content = readFileSync(filePath, "utf-8");
+  const body    = extractTasksBody(content);
 
-  const classnames  = extractStringValues(content, "classname");
-  const minutes     = extractStringValues(content, "minute");
-  const hours       = extractStringValues(content, "hour");
-  const days        = extractStringValues(content, "day");
-  const months      = extractStringValues(content, "month");
-  const daysOfWeek  = extractStringValues(content, "dayofweek");
-  const blockings   = extractFlagValues(content, "blocking");
-  const disableds   = extractFlagValues(content, "disabled");
+  if (body === null) return { file: filePath, tasks: [] };
 
-  const count = classnames.length;
+  const blocks = splitIntoBlocks(body);
   const tasks: ScheduledTask[] = [];
 
-  for (let i = 0; i < count; i++) {
+  for (const block of blocks) {
+    const classname = extractString(block, "classname");
+    if (!classname) continue;
+
     tasks.push({
-      classname:  classnames[i]  ?? "",
-      blocking:   blockings[i]   ?? false,
-      minute:     minutes[i]     ?? "*",
-      hour:       hours[i]       ?? "*",
-      day:        days[i]        ?? "*",
-      month:      months[i]      ?? "*",
-      dayofweek:  daysOfWeek[i]  ?? "*",
-      disabled:   disableds[i]   ?? false,
+      classname,
+      blocking:  extractFlag(block, "blocking"),
+      minute:    extractString(block, "minute")    || "*",
+      hour:      extractString(block, "hour")       || "*",
+      day:       extractString(block, "day")        || "*",
+      month:     extractString(block, "month")      || "*",
+      dayofweek: extractString(block, "dayofweek")  || "*",
+      disabled:  extractFlag(block, "disabled"),
     });
   }
 

@@ -23,7 +23,7 @@ import { extractPluginServices }                                           from 
 import { extractPluginCapabilities }                                       from "../extractors/capabilities.js";
 import { extractPluginClasses }                                            from "../extractors/classes.js";
 import { extractPluginUpgrade }                                            from "../extractors/upgrade.js";
-import { extractPluginHooks, pluginUsesHookApi } from "../extractors/hooks.js";
+import { extractPluginHooks, pluginUsesHookApi, HooksExtraction } from "../extractors/hooks.js";
 import { globalCache, getPluginSourceFiles }                               from "../cache.js";
 
 // ---------------------------------------------------------------------------
@@ -308,7 +308,10 @@ export function generatePluginEvents(info: PluginInfo): FileResult {
   }
 }
 
-export async function generatePluginDependencies(info: PluginInfo): Promise<FileResult> {
+export async function generatePluginDependencies(
+  info: PluginInfo,
+  preloadedHooks?: HooksExtraction
+): Promise<FileResult> {
   const output = join(info.path, "PLUGIN_DEPENDENCIES.md");
 
   return safely(output, async () => {
@@ -316,7 +319,7 @@ export async function generatePluginDependencies(info: PluginInfo): Promise<File
     const services     = extractPluginServices(info.path);
     const capabilities = extractPluginCapabilities(info.path);
     const upgrade      = extractPluginUpgrade(info.path);
-    const hooks        = await extractPluginHooks(info.path, info.component);
+    const hooks        = preloadedHooks ?? await extractPluginHooks(info.path, info.component);
 
     const lines = [
       header(`Plugin Dependencies: ${info.component}`,
@@ -456,12 +459,15 @@ export async function generatePluginFunctionIndex(info: PluginInfo): Promise<Fil
   });
 }
 
-export async function generatePluginCallbackIndex(info: PluginInfo): Promise<FileResult> {
+export async function generatePluginCallbackIndex(
+  info: PluginInfo,
+  preloadedHooks?: HooksExtraction
+): Promise<FileResult> {
   const output  = join(info.path, "PLUGIN_CALLBACK_INDEX.md");
   const prefix  = `${info.component}_`;
 
   return safely(output, async () => {
-    const hooks = await extractPluginHooks(info.path, info.component);
+    const hooks = preloadedHooks ?? await extractPluginHooks(info.path, info.component);
 
     const lines = [
       header(
@@ -729,7 +735,10 @@ export async function generatePluginArchitecture(info: PluginInfo): Promise<File
   });
 }
 
-export async function generatePluginAiContext(info: PluginInfo): Promise<FileResult> {
+export async function generatePluginAiContext(
+  info: PluginInfo,
+  preloadedHooks?: HooksExtraction
+): Promise<FileResult> {
   const output = join(info.path, "PLUGIN_AI_CONTEXT.md");
 
   return safely(output, async () => {
@@ -739,7 +748,7 @@ export async function generatePluginAiContext(info: PluginInfo): Promise<FileRes
     const services     = extractPluginServices(info.path);
     const capabilities = extractPluginCapabilities(info.path);
     const classes      = await extractPluginClasses(info.path);
-    const hooks        = await extractPluginHooks(info.path, info.component);
+    const hooks        = preloadedHooks ?? await extractPluginHooks(info.path, info.component);
 
     const lines = [
       header(`AI Context: ${info.component}`,
@@ -841,11 +850,14 @@ export async function generatePluginAiContext(info: PluginInfo): Promise<FileRes
 
 export async function generateAllForPlugin(
   pluginPath: string,
-  moodlePath: string
+  moodlePath: string,
+  markAsDev: boolean = true
 ): Promise<PluginGeneratorResult> {
   const info    = { ...detectPlugin(pluginPath), moodlePath };
   const sources = getPluginSourceFiles(pluginPath);
   const results: FileResult[] = [];
+
+  const hooks = await extractPluginHooks(pluginPath, info.component);
 
   async function run(
     outputFile: string,
@@ -862,18 +874,19 @@ export async function generateAllForPlugin(
   await run(join(pluginPath, "PLUGIN_STRUCTURE.md"),      () => generatePluginStructure(info));
   await run(join(pluginPath, "PLUGIN_DB_TABLES.md"),      () => generatePluginDbTables(info));
   await run(join(pluginPath, "PLUGIN_EVENTS.md"),         () => generatePluginEvents(info));
-  await run(join(pluginPath, "PLUGIN_DEPENDENCIES.md"),   () => generatePluginDependencies(info));
-  await run(join(pluginPath, "PLUGIN_CALLBACK_INDEX.md"), () => generatePluginCallbackIndex(info));
+  await run(join(pluginPath, "PLUGIN_DEPENDENCIES.md"),   () => generatePluginDependencies(info, hooks));
+  await run(join(pluginPath, "PLUGIN_CALLBACK_INDEX.md"), () => generatePluginCallbackIndex(info, hooks));
   await run(join(pluginPath, "PLUGIN_FUNCTION_INDEX.md"), () => generatePluginFunctionIndex(info));
   await run(join(pluginPath, "PLUGIN_ENDPOINT_INDEX.md"), () => generatePluginEndpointIndex(info));
   await run(join(pluginPath, "PLUGIN_RUNTIME_FLOW.md"),   () => generatePluginRuntimeFlow(info));
   await run(join(pluginPath, "PLUGIN_ARCHITECTURE.md"),   () => generatePluginArchitecture(info));
-  await run(join(pluginPath, "PLUGIN_AI_CONTEXT.md"),     () => generatePluginAiContext(info));
+  await run(join(pluginPath, "PLUGIN_AI_CONTEXT.md"),     () => generatePluginAiContext(info, hooks));
 
-  // Mark as dev plugin
-  try {
-    writeFileSync(join(pluginPath, ".moodle-mcp-dev"), timestamp(), "utf-8");
-  } catch { /* non-fatal */ }
+  if (markAsDev) {
+    try {
+      writeFileSync(join(pluginPath, ".moodle-mcp-dev"), timestamp(), "utf-8");
+    } catch { /* non-fatal */ }
+  }
 
   return { plugin: info.component, files: results };
 }

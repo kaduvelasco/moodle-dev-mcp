@@ -49,18 +49,23 @@ export interface CapabilitiesExtraction {
  * Extracts the $capabilities array body from a PHP file.
  */
 function extractCapabilitiesBody(content: string): string | null {
-  const startMatch = content.match(/\$capabilities\s*=\s*[\[|(array\s*\(]/);
+  const startMatch = content.match(/\$capabilities\s*=\s*/);
   if (!startMatch || startMatch.index === undefined) return null;
 
-  const startIdx = content.indexOf("[", startMatch.index);
+  let startIdx = -1;
+  for (let i = startMatch.index + startMatch[0].length; i < content.length; i++) {
+    if (content[i] === "[" || content[i] === "(") { startIdx = i; break; }
+  }
   if (startIdx === -1) return null;
 
+  const openChar  = content[startIdx];
+  const closeChar = openChar === "[" ? "]" : ")";
   let depth = 0;
   let end   = -1;
 
   for (let i = startIdx; i < content.length; i++) {
-    if (content[i] === "[") depth++;
-    else if (content[i] === "]") {
+    if (content[i] === openChar) depth++;
+    else if (content[i] === closeChar) {
       depth--;
       if (depth === 0) { end = i; break; }
     }
@@ -80,19 +85,21 @@ function splitCapabilityEntries(
   const entries: Array<{ name: string; body: string }> = [];
 
   // Match capability name keys: 'component/name:action' =>
-  const keyPattern = /'([a-zA-Z0-9_/]+:[a-zA-Z0-9_]+)'\s*=>\s*\[/g;
+  const keyPattern = /'([a-zA-Z0-9_/]+:[a-zA-Z0-9_]+)'\s*=>\s*(\[|array\s*\()/g;
   let match: RegExpExecArray | null;
 
   while ((match = keyPattern.exec(body)) !== null) {
     const name       = match[1];
     const blockStart = match.index + match[0].length - 1;
+    const openChar   = body[blockStart];
+    const closeChar  = openChar === "[" ? "]" : ")";
 
     let depth = 0;
     let end   = -1;
 
     for (let i = blockStart; i < body.length; i++) {
-      if (body[i] === "[") depth++;
-      else if (body[i] === "]") {
+      if (body[i] === openChar) depth++;
+      else if (body[i] === closeChar) {
         depth--;
         if (depth === 0) { end = i; break; }
       }

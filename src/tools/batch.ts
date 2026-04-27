@@ -88,7 +88,8 @@ async function findAllPlugins(moodlePath: string): Promise<string[]> {
 async function processPlugin(
   pluginPath: string,
   moodlePath: string,
-  force:      boolean
+  force:      boolean,
+  markAsDev:  boolean
 ): Promise<BatchPluginResult> {
   let component = pluginPath.replace(moodlePath + "/", "");
 
@@ -114,7 +115,7 @@ async function processPlugin(
       }
     }
 
-    const result = await generateAllForPlugin(pluginPath, moodlePath);
+    const result = await generateAllForPlugin(pluginPath, moodlePath, markAsDev);
 
     const generated = result.files.filter((f) => f.success && !f.skipped).length;
     const skipped   = result.files.filter((f) => f.skipped).length;
@@ -302,9 +303,12 @@ export function registerBatchTool(server: McpServer): void {
         "",
       ];
 
+      // dev mode always marks; all/list modes respect the mark_as_dev flag
+      const shouldMarkAsDev = mode === "dev" || mark_as_dev;
+
       // Stream-friendly: build result list as we go
       for (const pluginPath of pluginPaths.sort()) {
-        const result = await processPlugin(pluginPath, moodlePath, force);
+        const result = await processPlugin(pluginPath, moodlePath, force, shouldMarkAsDev);
         results.push(result);
       }
 
@@ -366,13 +370,20 @@ export function registerBatchTool(server: McpServer): void {
         `Cache — hits: ${cacheStats.hits}, misses: ${cacheStats.misses}, skips: ${cacheStats.skips}`,
       );
 
-      // mark_as_dev hint
-      if ((mode === "all" || mode === "list") && !mark_as_dev && succeeded.length > 0) {
-        lines.push(
-          "",
-          `Tip: pass \`mark_as_dev: true\` to mark these ${succeeded.length} plugin(s) for ` +
-          `automatic watch and future 'dev' mode runs.`
-        );
+      if ((mode === "all" || mode === "list") && succeeded.length > 0) {
+        if (mark_as_dev) {
+          lines.push(
+            "",
+            `Marked ${succeeded.length} plugin(s) with .moodle-mcp-dev for automatic watch ` +
+            `and future 'dev' mode runs.`
+          );
+        } else {
+          lines.push(
+            "",
+            `Tip: pass \`mark_as_dev: true\` to mark these ${succeeded.length} plugin(s) for ` +
+            `automatic watch and future 'dev' mode runs.`
+          );
+        }
       }
 
       return {

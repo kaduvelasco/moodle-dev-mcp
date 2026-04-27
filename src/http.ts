@@ -61,6 +61,8 @@ export interface HttpServerOptions {
 // Session store
 // ---------------------------------------------------------------------------
 
+const MAX_SESSIONS = 100;
+
 /** Active Streamable HTTP transport sessions */
 const streamableSessions = new Map<string, StreamableHTTPServerTransport>();
 
@@ -165,20 +167,28 @@ function makeStreamableHandler(serverFactory: () => Promise<McpServer>) {
           return;
         }
 
+        if (streamableSessions.size >= MAX_SESSIONS) {
+          res.status(503).json({
+            error: "Service Unavailable",
+            message: `Maximum concurrent sessions (${MAX_SESSIONS}) reached. Try again later.`,
+          });
+          return;
+        }
+
         // Create new session
         const newSessionId = randomUUID();
         const transport    = new StreamableHTTPServerTransport({
           sessionIdGenerator: () => newSessionId,
         });
 
-        streamableSessions.set(newSessionId, transport);
+        const server = await serverFactory();
+        await server.connect(transport);
 
+        streamableSessions.set(newSessionId, transport);
         res.on("close", () => {
           streamableSessions.delete(newSessionId);
         });
 
-        const server = await serverFactory();
-        await server.connect(transport);
         await transport.handleRequest(req, res, req.body);
         return;
       }
@@ -235,6 +245,14 @@ function makeStreamableHandler(serverFactory: () => Promise<McpServer>) {
  */
 function makeLegacySseHandler(serverFactory: () => Promise<McpServer>) {
   return async (req: Request, res: Response): Promise<void> => {
+    if (sseSessions.size >= MAX_SESSIONS) {
+      res.status(503).json({
+        error: "Service Unavailable",
+        message: `Maximum concurrent sessions (${MAX_SESSIONS}) reached. Try again later.`,
+      });
+      return;
+    }
+
     try {
       const transport = new SSEServerTransport("/messages", res);
 
