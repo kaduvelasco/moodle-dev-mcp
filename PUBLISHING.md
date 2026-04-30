@@ -34,7 +34,7 @@ The dry-run output should list only:
 ```
 dist/
 README.md
-README.pt-BR.md
+LEIAME.md
 LICENSE
 .env.example
 package.json

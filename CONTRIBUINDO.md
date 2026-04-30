@@ -1,6 +1,6 @@
 # Contribuindo com o moodle-dev-mcp
 
-🇺🇸 [Read in English](./CONTRIBUTING.md)  |  [← Voltar ao README](./README.pt-BR.md)
+🇺🇸 [Read in English](./CONTRIBUTING.md)  |  [← Voltar ao LEIAME](./LEIAME.md)
 
 ---
 
@@ -23,12 +23,7 @@ chmod +x setup.sh
 ./setup.sh
 ```
 
-O `setup.sh` verifica as dependências, instala os pacotes e compila o TypeScript automaticamente. Para instalar os clientes de IA (Claude Code, Gemini CLI, OpenAI Codex) ou gerar arquivos de contexto para sua instalação Moodle, use o utilitário auxiliar:
-
-```bash
-chmod +x support.sh
-./support.sh
-```
+O `setup.sh` verifica as dependências, instala os pacotes e compila o TypeScript automaticamente.
 
 ## Entendendo a arquitetura
 
@@ -66,4 +61,8 @@ npm run build         # compilar TypeScript → dist/
 
 ---
 
-[← Voltar ao README](./README.pt-BR.md)
+[← Voltar ao LEIAME](./LEIAME.md)
+
+---
+
+Made with ❤️ and AI by [Kadu Velasco](https://github.com/kaduvelasco)

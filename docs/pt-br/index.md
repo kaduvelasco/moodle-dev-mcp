@@ -1,6 +1,6 @@
 # Documentação — moodle-dev-mcp 🎓
 
-🌐 [English](../../en/index.md) | **Português (BR)** | 🏠 [Voltar para o README](../../README.pt-BR.md)
+🌐 [English](../../en/index.md) | **Português (BR)** | 🏠 [Voltar para o LEIAME](../../LEIAME.md)
 
 ---
 

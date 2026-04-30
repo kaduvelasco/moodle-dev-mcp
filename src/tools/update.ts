@@ -17,7 +17,7 @@ import { glob }                   from "glob";
 import { loadConfig, saveConfig } from "../config.js";
 import { generateAll }            from "../generators/moodle.js";
 import { generateAllForPlugin }   from "../generators/plugin.js";
-import { detectMoodleVersionFromPath } from "../extractors/moodle-detect.js";
+import { detectMoodleInstall }    from "../extractors/moodle-detect.js";
 import { globalCache }            from "../cache.js";
 import { MoodleWatcher }          from "../watcher.js";
 
@@ -67,9 +67,12 @@ export function registerUpdateTool(server: McpServer): void {
       const { moodlePath } = config;
 
       // Re-detect version (may have been upgraded)
-      const moodleVersion = detectMoodleVersionFromPath(moodlePath) ?? config.moodleVersion;
-      if (moodleVersion !== config.moodleVersion) {
-        saveConfig({ moodlePath, moodleVersion });
+      const installInfo       = detectMoodleInstall(moodlePath);
+      const moodleVersion     = installInfo?.version ?? config.moodleVersion;
+      const moodleFullVersion = installInfo?.build   ?? config.moodleFullVersion;
+
+      if (moodleVersion !== config.moodleVersion || moodleFullVersion !== config.moodleFullVersion) {
+        saveConfig({ moodlePath, moodleVersion, moodleFullVersion });
       }
 
       // Bust cache if forced
@@ -172,12 +175,6 @@ export function registerUpdateTool(server: McpServer): void {
 
     async ({ action }) => {
       const config = loadConfig();
-      if (!config && action === "start") {
-        return {
-          content: [{ type: "text" as const, text: "❌ Run `init_moodle_context` first." }],
-          isError: true,
-        };
-      }
 
       if (action === "status") {
         return {
@@ -204,7 +201,14 @@ export function registerUpdateTool(server: McpServer): void {
         return { content: [{ type: "text" as const, text: "⚠ Watcher is already running. Use action: 'stop' first." }] };
       }
 
-      const { moodlePath, moodleVersion } = config!;
+      if (!config) {
+        return {
+          content: [{ type: "text" as const, text: "❌ Run `init_moodle_context` first." }],
+          isError: true,
+        };
+      }
+
+      const { moodlePath, moodleVersion } = config;
       activeWatcher = new MoodleWatcher(moodlePath, moodleVersion);
       const count   = await activeWatcher.start();
 

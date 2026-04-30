@@ -21,7 +21,7 @@ import { z } from "zod";
 
 import { saveConfig, loadConfig, getConfigFilePath } from "../config.js";
 import { generateAll }             from "../generators/moodle.js";
-import { detectMoodleVersionFromPath } from "../extractors/moodle-detect.js";
+import { detectMoodleInstall }     from "../extractors/moodle-detect.js";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -125,12 +125,14 @@ export function registerInitTool(server: McpServer): void {
       // ------------------------------------------------------------------
       // Detect version
       // ------------------------------------------------------------------
-      const moodleVersion = detectMoodleVersionFromPath(moodle_path) ?? "";
+      const installInfo       = detectMoodleInstall(moodle_path);
+      const moodleVersion     = installInfo?.version ?? "";
+      const moodleFullVersion = installInfo?.build   ?? "";
 
       // ------------------------------------------------------------------
       // Save configuration
       // ------------------------------------------------------------------
-      saveConfig({ moodlePath: moodle_path, moodleVersion });
+      saveConfig({ moodlePath: moodle_path, moodleVersion, moodleFullVersion });
 
       // ------------------------------------------------------------------
       // Run all generators
@@ -143,9 +145,10 @@ export function registerInitTool(server: McpServer): void {
       const lines: string[] = [
         "✅ Moodle context initialized successfully!",
         "",
-        `Moodle path:    ${moodle_path}`,
-        `Moodle version: ${moodleVersion}`,
-        `Config file:    ${getConfigFilePath()}`,
+        `Moodle path:         ${moodle_path}`,
+        `Moodle version:      ${moodleVersion}`,
+        `Moodle full version: ${moodleFullVersion || "(not detected)"}`,
+        `Config file:         ${getConfigFilePath()}`,
         "",
         `Files generated: ${succeeded.length}`,
       ];

@@ -153,8 +153,7 @@ function parseDocBlock(raw: string): PhpDocBlock {
       if (line.startsWith("@")) {
         inSummary = false;
       } else if (line !== "") {
-        if (summary === "") summary = line;
-        // continue collecting multi-line summary (stop at blank or tag)
+        summary = summary === "" ? line : `${summary} ${line}`;
         continue;
       } else if (summary !== "") {
         inSummary = false; // blank line after summary text = end of summary
@@ -315,12 +314,16 @@ function scanPhpFile(filePath: string): ApiFunction[] {
 function getPhpFiles(dirPath: string, recurse = false): string[] {
   if (!existsSync(dirPath)) return [];
 
-  const files: string[] = [];
+  const files: string[]    = [];
+  const seen:  Set<string> = new Set();
 
   // Priority files first
   for (const pf of PRIORITY_FILES) {
     const fullPath = join(dirPath, pf);
-    if (existsSync(fullPath)) files.push(fullPath);
+    if (existsSync(fullPath)) {
+      files.push(fullPath);
+      seen.add(fullPath);
+    }
   }
 
   try {
@@ -335,7 +338,7 @@ function getPhpFiles(dirPath: string, recurse = false): string[] {
         continue;
       }
 
-      if (stat.isFile() && entry.endsWith(".php") && !files.includes(fullPath)) {
+      if (stat.isFile() && entry.endsWith(".php") && !seen.has(fullPath)) {
         files.push(fullPath);
       }
     }

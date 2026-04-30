@@ -162,7 +162,7 @@ O erro aparece somente na página de relatórios.
 
 ## Contribuindo com novos prompts
 
-Se você quiser adicionar prompts customizados ao servidor (em `src/prompts/`), siga as diretrizes em [CONTRIBUTING.md](../../../../CONTRIBUTING.pt-BR.md). Boas práticas:
+Se você quiser adicionar prompts customizados ao servidor (em `src/prompts/`), siga as diretrizes em [CONTRIBUINDO.md](../../../../CONTRIBUINDO.md). Boas práticas:
 
 - **Verifique a versão do Moodle:** injete `AI_CONTEXT.md` e oriente a IA a verificar a versão antes de sugerir Hooks (4.3+) ou APIs com `@since`.
 - **Exija localização:** instrua o prompt a sugerir strings de tradução em `lang/en/` em vez de texto fixo no código.

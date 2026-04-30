@@ -23,7 +23,7 @@
 
 import { McpServer }          from "@modelcontextprotocol/sdk/server/mcp.js";
 import { existsSync }         from "fs";
-import { join, resolve }        from "path";
+import { join, relative, resolve } from "path";
 import { z }                  from "zod";
 import { glob }               from "glob";
 
@@ -91,7 +91,7 @@ async function processPlugin(
   force:      boolean,
   markAsDev:  boolean
 ): Promise<BatchPluginResult> {
-  let component = pluginPath.replace(moodlePath + "/", "");
+  let component = relative(moodlePath, pluginPath);
 
   try {
     const info = detectPlugin(pluginPath);

@@ -10,7 +10,7 @@
 
 import { McpServer, ResourceTemplate } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { existsSync, readFileSync, readdirSync, statSync } from "fs";
-import { join, resolve }                                    from "path";
+import { join, relative, resolve }                          from "path";
 import { glob }                                             from "glob";
 import { loadConfig }                                       from "../config.js";
 import { detectPlugin }                                     from "../extractors/plugin.js";
@@ -182,10 +182,10 @@ export async function registerPluginResources(server: McpServer): Promise<void> 
         const pluginDir = resolve(file, "..");
         try {
           const info = detectPlugin(pluginDir);
-          const rel  = pluginDir.replace(config.moodlePath + "/", "");
+          const rel  = relative(config.moodlePath, pluginDir);
           lines.push(`| \`${info.component}\` | ${info.type} | ${rel} |`);
         } catch {
-          const rel = pluginDir.replace(config.moodlePath + "/", "");
+          const rel = relative(config.moodlePath, pluginDir);
           lines.push(`| _(unknown)_ | — | ${rel} |`);
         }
       }

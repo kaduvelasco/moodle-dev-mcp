@@ -1,6 +1,6 @@
 # Contributing to moodle-dev-mcp
 
-🇧🇷 [Leia em Português](./CONTRIBUTING.pt-BR.md) | [← Back to README](./README.pt-BR.md)
+🇧🇷 [Leia em Português](./CONTRIBUINDO.md) | [← Back to README](./README.md)
 
 ---
 
@@ -23,12 +23,7 @@ chmod +x setup.sh
 ./setup.sh
 ```
 
-The `setup.sh` checks dependencies, installs packages and compiles TypeScript automatically. To install AI clients (Claude Code, Gemini CLI, OpenAI Codex) or generate context files for your Moodle installation, use the helper utility:
-
-```bash
-chmod +x support.sh
-./support.sh
-```
+The `setup.sh` checks dependencies, installs packages and compiles TypeScript automatically.
 
 ## Understanding the architecture
 

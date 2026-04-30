@@ -14,10 +14,12 @@
  * .moodle-mcp file format (key=value):
  *   MOODLE_PATH=/var/www/moodle
  *   MOODLE_VERSION=4.3
+ *   MOODLE_FULLVERSION=2022112822.00
  *
  * Environment variables:
- *   MOODLE_PATH     - Absolute path to the Moodle installation root
- *   MOODLE_VERSION  - Moodle version string (optional, auto-detected if absent)
+ *   MOODLE_PATH         - Absolute path to the Moodle installation root
+ *   MOODLE_VERSION      - Human-readable version string (optional, auto-detected)
+ *   MOODLE_FULLVERSION  - Numeric build from $version in version.php (optional, auto-detected)
  */
 
 import { readFileSync, writeFileSync, existsSync } from "fs";
@@ -29,8 +31,10 @@ import { homedir } from "os";
 // ---------------------------------------------------------------------------
 
 export interface MoodleConfig {
-  moodlePath:    string;
-  moodleVersion: string;
+  moodlePath:         string;
+  moodleVersion:      string;
+  /** Numeric build from $version in version.php, e.g. "2022112822.00" */
+  moodleFullVersion:  string;
   /** Origin of the configuration — useful for diagnostics */
   source: "env" | "file";
 }
@@ -66,7 +70,8 @@ function loadFromFile(): MoodleConfig | null {
 
   return {
     moodlePath,
-    moodleVersion: parsed["MOODLE_VERSION"] ?? "",
+    moodleVersion:     parsed["MOODLE_VERSION"]     ?? "",
+    moodleFullVersion: parsed["MOODLE_FULLVERSION"] ?? "",
     source: "file",
   };
 }
@@ -77,7 +82,8 @@ function loadFromEnv(): MoodleConfig | null {
 
   return {
     moodlePath,
-    moodleVersion: process.env["MOODLE_VERSION"]?.trim() ?? "",
+    moodleVersion:     process.env["MOODLE_VERSION"]?.trim()     ?? "",
+    moodleFullVersion: process.env["MOODLE_FULLVERSION"]?.trim() ?? "",
     source: "env",
   };
 }
@@ -107,10 +113,15 @@ export function saveConfig(config: Omit<MoodleConfig, "source">): void {
   const content = [
     `MOODLE_PATH=${config.moodlePath}`,
     `MOODLE_VERSION=${config.moodleVersion}`,
+    `MOODLE_FULLVERSION=${config.moodleFullVersion}`,
     "",
   ].join("\n");
 
-  writeFileSync(getConfigPath(), content, "utf-8");
+  try {
+    writeFileSync(getConfigPath(), content, "utf-8");
+  } catch (e) {
+    throw new Error(`Failed to save config to ${getConfigPath()}: ${String(e)}`);
+  }
 }
 
 /**

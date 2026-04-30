@@ -116,7 +116,7 @@ function splitIntoBlocks(body: string): string[] {
 
 function extractString(block: string, key: string): string {
   const match = block.match(
-    new RegExp(`['"]${key}['"]\\s*=>\\s*['"]([^'"]*)['"\\s,]`)
+    new RegExp(`['"]${key}['"]\\s*=>\\s*['"]([^'"]*)['"]`)
   );
   return match ? match[1] : "";
 }

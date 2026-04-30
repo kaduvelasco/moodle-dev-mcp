@@ -11,10 +11,8 @@
  * endpoint pair is also provided.
  *
  * Authentication:
- *   When --token is provided, every request must include either:
+ *   When --token is provided, every request must include:
  *     Authorization: Bearer <token>
- *   or the query parameter:
- *     ?token=<token>
  *   Requests without a valid token receive HTTP 401.
  *
  * Session management:
@@ -34,7 +32,7 @@
  */
 
 import express, { Request, Response, NextFunction } from "express";
-import { randomUUID }                                from "crypto";
+import { randomUUID, timingSafeEqual }               from "crypto";
 import { McpServer }                                 from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StreamableHTTPServerTransport }             from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { SSEServerTransport }                        from "@modelcontextprotocol/sdk/server/sse.js";
@@ -63,12 +61,6 @@ export interface HttpServerOptions {
 
 const MAX_SESSIONS = 100;
 
-/** Active Streamable HTTP transport sessions */
-const streamableSessions = new Map<string, StreamableHTTPServerTransport>();
-
-/** Active SSE transport sessions (legacy) */
-const sseSessions         = new Map<string, SSEServerTransport>();
-
 // ---------------------------------------------------------------------------
 // Middleware factories
 // ---------------------------------------------------------------------------
@@ -76,25 +68,27 @@ const sseSessions         = new Map<string, SSEServerTransport>();
 /**
  * Token authentication middleware.
  * Skipped entirely when options.token is empty.
+ * Uses timingSafeEqual to prevent timing attacks.
  */
 function makeAuthMiddleware(token: string) {
   return (req: Request, res: Response, next: NextFunction): void => {
     if (!token) { next(); return; }
 
-    // Accept Bearer token in Authorization header or query param
     const authHeader = req.headers["authorization"] ?? "";
-    const queryToken = req.query["token"] as string | undefined;
+    const provided   = authHeader.startsWith("Bearer ")
+      ? authHeader.slice(7).trim()
+      : "";
 
-    const provided =
-      authHeader.startsWith("Bearer ")
-        ? authHeader.slice(7).trim()
-        : queryToken?.trim() ?? "";
+    const providedBuf = Buffer.from(provided);
+    const tokenBuf    = Buffer.from(token);
+    const valid =
+      providedBuf.length === tokenBuf.length &&
+      timingSafeEqual(providedBuf, tokenBuf);
 
-    if (provided !== token) {
+    if (!valid) {
       res.status(401).json({
-        error: "Unauthorized",
-        message: "Valid Bearer token required. " +
-          "Set Authorization: Bearer <token> header or ?token=<token> query param.",
+        error:   "Unauthorized",
+        message: "Valid Bearer token required. Set Authorization: Bearer <token> header.",
       });
       return;
     }
@@ -142,7 +136,10 @@ function makeHostValidationMiddleware(allowedHosts: string[], bindHost: string) 
  * GET:  client opens an SSE stream for server-initiated messages.
  * DELETE: client terminates its session.
  */
-function makeStreamableHandler(serverFactory: () => Promise<McpServer>) {
+function makeStreamableHandler(
+  serverFactory:      () => Promise<McpServer>,
+  streamableSessions: Map<string, StreamableHTTPServerTransport>,
+) {
   return async (req: Request, res: Response): Promise<void> => {
     try {
       // ----------------------------------------------------------------
@@ -233,7 +230,7 @@ function makeStreamableHandler(serverFactory: () => Promise<McpServer>) {
     } catch (e) {
       process.stderr.write(`[http] /mcp error: ${String(e)}\n`);
       if (!res.headersSent) {
-        res.status(500).json({ error: "Internal Server Error", message: String(e) });
+        res.status(500).json({ error: "Internal Server Error" });
       }
     }
   };
@@ -243,7 +240,10 @@ function makeStreamableHandler(serverFactory: () => Promise<McpServer>) {
  * Legacy SSE endpoint — GET /sse opens a persistent SSE connection.
  * Kept for backwards compatibility with older MCP clients.
  */
-function makeLegacySseHandler(serverFactory: () => Promise<McpServer>) {
+function makeLegacySseHandler(
+  serverFactory: () => Promise<McpServer>,
+  sseSessions:   Map<string, SSEServerTransport>,
+) {
   return async (req: Request, res: Response): Promise<void> => {
     if (sseSessions.size >= MAX_SESSIONS) {
       res.status(503).json({
@@ -281,7 +281,7 @@ function makeLegacySseHandler(serverFactory: () => Promise<McpServer>) {
 /**
  * Legacy message endpoint — POST /messages routes to the correct SSE session.
  */
-function makeLegacyMessageHandler() {
+function makeLegacyMessageHandler(sseSessions: Map<string, SSEServerTransport>) {
   return async (req: Request, res: Response): Promise<void> => {
     const sessionId = req.query["sessionId"] as string | undefined;
 
@@ -317,7 +317,10 @@ function makeLegacyMessageHandler() {
 // Health & info endpoints
 // ---------------------------------------------------------------------------
 
-function makeHealthHandler() {
+function makeHealthHandler(
+  streamableSessions: Map<string, StreamableHTTPServerTransport>,
+  sseSessions:        Map<string, SSEServerTransport>,
+) {
   return (_req: Request, res: Response): void => {
     res.json({
       status:   "ok",
@@ -341,8 +344,11 @@ function makeHealthHandler() {
  * @param options - Server configuration
  * @returns A cleanup function that closes the server
  */
-export async function startHttpServer(options: HttpServerOptions): Promise<() => void> {
+export async function startHttpServer(options: HttpServerOptions): Promise<() => Promise<void>> {
   const { port, host, token, allowedHosts, serverFactory } = options;
+
+  const streamableSessions = new Map<string, StreamableHTTPServerTransport>();
+  const sseSessions         = new Map<string, SSEServerTransport>();
 
   const app = express();
 
@@ -355,14 +361,14 @@ export async function startHttpServer(options: HttpServerOptions): Promise<() =>
 
   // Health check (no auth required — middleware runs after this if we skip it,
   // but for simplicity health is also protected when token is set)
-  app.get("/health", makeHealthHandler());
+  app.get("/health", makeHealthHandler(streamableSessions, sseSessions));
 
   // Modern Streamable HTTP endpoint
-  app.all("/mcp", makeStreamableHandler(serverFactory));
+  app.all("/mcp", makeStreamableHandler(serverFactory, streamableSessions));
 
   // Legacy SSE endpoints (backwards compatibility)
-  app.get("/sse",          makeLegacySseHandler(serverFactory));
-  app.post("/messages",    makeLegacyMessageHandler());
+  app.get("/sse",          makeLegacySseHandler(serverFactory, sseSessions));
+  app.post("/messages",    makeLegacyMessageHandler(sseSessions));
 
   // 404 fallback
   app.use((_req: Request, res: Response) => {
@@ -384,11 +390,13 @@ export async function startHttpServer(options: HttpServerOptions): Promise<() =>
     );
   });
 
-  return () => {
-    httpServer.close();
-    for (const t of streamableSessions.values()) t.close().catch(() => {});
-    for (const t of sseSessions.values())         t.close().catch(() => {});
-    streamableSessions.clear();
-    sseSessions.clear();
+  return (): Promise<void> => {
+    return new Promise((done) => {
+      for (const t of streamableSessions.values()) t.close().catch(() => {});
+      for (const t of sseSessions.values())         t.close().catch(() => {});
+      streamableSessions.clear();
+      sseSessions.clear();
+      httpServer.close(() => done());
+    });
   };
 }

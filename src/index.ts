@@ -160,15 +160,15 @@ async function main(): Promise<void> {
       serverFactory: createServer,
     });
 
-    // Graceful shutdown
-    const shutdown = (signal: string) => {
+    // Graceful shutdown — awaits HTTP server close before exiting
+    const shutdown = async (signal: string): Promise<void> => {
       process.stderr.write(`[moodle-mcp] Received ${signal} — shutting down...\n`);
-      cleanup();
+      await cleanup();
       process.exit(0);
     };
 
-    process.on("SIGINT",  () => shutdown("SIGINT"));
-    process.on("SIGTERM", () => shutdown("SIGTERM"));
+    process.on("SIGINT",  () => { void shutdown("SIGINT"); });
+    process.on("SIGTERM", () => { void shutdown("SIGTERM"); });
 
     return; // Keep process alive — HTTP server holds the event loop
   }

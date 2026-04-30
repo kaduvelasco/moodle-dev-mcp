@@ -81,3 +81,18 @@ secrets.*
 .htpasswd
 auth.json
 wp-config.php
+# Added by code-review-graph
+.code-review-graph/
+
+# -----------------------------------------------------------------------------
+# Assistentes e ferramentas de IA
+# (manter no git: AGENTS.md, CLAUDE.md, GEMINI.md)
+# -----------------------------------------------------------------------------
+.claude/
+.cursor/
+.cursorrules
+.windsurfrules
+.opencode.json
+.aivault.json
+.mcp.json
+.code-review-graphignore

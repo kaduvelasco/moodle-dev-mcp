@@ -16,7 +16,7 @@
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { existsSync, readFileSync } from "fs";
-import { join, resolve } from "path";
+import { join, relative, resolve } from "path";
 import { z } from "zod";
 
 import { loadConfig }   from "../config.js";
@@ -46,7 +46,7 @@ function searchInFile(filePath: string, query: string): string[] {
  * Checks whether the moodle-mcp config exists and returns it,
  * or returns an error response.
  */
-function requireConfig() {
+function loadConfigOrNull() {
   const config = loadConfig();
   if (!config) return null;
   return config;
@@ -88,7 +88,7 @@ export function registerSearchTools(server: McpServer): void {
     },
 
     async ({ query, limit }) => {
-      const config = requireConfig();
+      const config = loadConfigOrNull();
       if (!config) {
         return {
           content: [{ type: "text" as const, text: "❌ Run `init_moodle_context` first." }],
@@ -168,7 +168,7 @@ export function registerSearchTools(server: McpServer): void {
     },
 
     async ({ query, visibility, limit }) => {
-      const config = requireConfig();
+      const config = loadConfigOrNull();
       if (!config) {
         return {
           content: [{ type: "text" as const, text: "❌ Run `init_moodle_context` first." }],
@@ -244,7 +244,7 @@ export function registerSearchTools(server: McpServer): void {
     },
 
     async ({ plugin }) => {
-      const config = requireConfig();
+      const config = loadConfigOrNull();
       if (!config) {
         return {
           content: [{ type: "text" as const, text: "❌ Run `init_moodle_context` first." }],
@@ -345,7 +345,7 @@ export function registerSearchTools(server: McpServer): void {
     {},
 
     async () => {
-      const config = requireConfig();
+      const config = loadConfigOrNull();
       if (!config) {
         return {
           content: [{ type: "text" as const, text: "❌ Run `init_moodle_context` first." }],
@@ -382,14 +382,14 @@ export function registerSearchTools(server: McpServer): void {
       ];
 
       for (const marker of devMarkers.sort()) {
-        const pluginDir = join(marker, "..");
+        const pluginDir = resolve(marker, "..");
         try {
           const info       = detectPlugin(pluginDir);
-          const rel        = pluginDir.replace(config.moodlePath + "/", "");
+          const rel        = relative(config.moodlePath, pluginDir);
           const hasContext = existsSync(join(pluginDir, "PLUGIN_AI_CONTEXT.md")) ? "✔" : "";
           lines.push(`| \`${info.component}\` | ${rel} | ${hasContext} |`);
         } catch {
-          const rel = pluginDir.replace(config.moodlePath + "/", "");
+          const rel = relative(config.moodlePath, pluginDir);
           lines.push(`| _(unknown)_ | ${rel} | |`);
         }
       }

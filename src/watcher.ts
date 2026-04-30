@@ -17,7 +17,7 @@
  */
 
 import { watch, existsSync, FSWatcher } from "fs";
-import { join, relative }               from "path";
+import { join, relative, resolve }      from "path";
 import { glob }                         from "glob";
 import { globalCache }                  from "./cache.js";
 import { generateAllForPlugin }         from "./generators/plugin.js";
@@ -54,6 +54,7 @@ const WATCHED_FILES = [
   "db/tasks.php",
   "db/services.php",
   "db/upgrade.php",
+  "db/hooks.php",
 ];
 
 // ---------------------------------------------------------------------------
@@ -65,6 +66,7 @@ export class MoodleWatcher {
   private readonly moodleVersion: string;
   private watchers:               FSWatcher[]          = [];
   private timers:                 Map<string, NodeJS.Timeout> = new Map();
+  private regenerating:           Set<string>          = new Set();
   private callbacks:              WatchCallback[]       = [];
   private running                                       = false;
 
@@ -93,7 +95,7 @@ export class MoodleWatcher {
     let count = 0;
 
     for (const marker of devMarkers.slice(0, MAX_WATCHED_PLUGINS)) {
-      const pluginDir = join(marker, "..");
+      const pluginDir = resolve(marker, "..");
       count += this.watchPlugin(pluginDir);
     }
 
@@ -185,12 +187,18 @@ export class MoodleWatcher {
   }
 
   private async regeneratePlugin(pluginDir: string, changedFile: string): Promise<void> {
+    if (this.regenerating.has(pluginDir)) {
+      this.stderr(`Regeneration already in progress for ${relative(this.moodlePath, pluginDir)} — skipping`);
+      return;
+    }
+
     const rel = relative(this.moodlePath, changedFile);
     this.stderr(`Change detected: ${rel} — regenerating...`);
 
     // Invalidate cache for this plugin
     globalCache.invalidate(join(pluginDir, "PLUGIN_AI_CONTEXT.md"));
 
+    this.regenerating.add(pluginDir);
     try {
       const result = await generateAllForPlugin(pluginDir, this.moodlePath);
       await generateAiIndex(this.moodlePath, this.moodleVersion);
@@ -216,6 +224,8 @@ export class MoodleWatcher {
 
     } catch (e) {
       this.stderr(`Regeneration failed for ${pluginDir}: ${String(e)}`);
+    } finally {
+      this.regenerating.delete(pluginDir);
     }
   }
 

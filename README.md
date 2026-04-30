@@ -15,11 +15,11 @@
 [![Node Version](https://img.shields.io/node/v/moodle-dev-mcp)](https://nodejs.org)
 [![License: GPL-3.0](https://img.shields.io/badge/license-GPL--3.0-blue.svg)](./LICENSE)
 [![Protocol: MCP](https://img.shields.io/badge/protocol-MCP-purple.svg)](https://modelcontextprotocol.io)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](./CONTRIBUTING.pt-BR.md)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](./CONTRIBUINDO.md)
 
 </p>
 
-🇧🇷 [Leia em Português](./README.pt-BR.md) | 📚 [Full Documentation](./docs/en/index.md)
+🇧🇷 [Leia em Português](./LEIAME.md) | 📚 [Full Documentation](./docs/en/index.md)
 
 ---
 
@@ -142,7 +142,14 @@ The server **never communicates with external servers** and **never modifies Moo
 
 ## 📊 Project status
 
-> **v1.1.0:** the server is functional and ready for use in development environments.
+> **v1.2.0:** stable release with security improvements, bug fixes, and new features.
+
+### What's new in v1.2.0
+
+- **`MOODLE_FULLVERSION`:** the `.moodle-mcp` config file now stores the full numeric build from `$version` in `version.php` (e.g. `2022112822.00`), in addition to the human-readable version string.
+- **HTTP security hardening:** Bearer token comparison now uses constant-time evaluation to prevent timing attacks. Token via query parameter (`?token=`) has been removed — use `Authorization: Bearer <token>` header only.
+- **Watcher covers `db/hooks.php`:** changes to the Hook API registration file now trigger automatic context regeneration.
+- **Bug fixes:** multi-line PHPDoc summaries, `db/access.php` with legacy `array()` syntax, race condition in concurrent plugin regeneration, path resolution on symlinked filesystems, and graceful HTTP shutdown.
 
 ### Available Tools
 
@@ -267,6 +274,7 @@ Pre-configured prompt templates for common Moodle development tasks. → [Full r
 - The server **never modifies Moodle PHP files**. Writing is limited to context `.md` files generated inside plugin directories.
 - It is recommended to use the server only in **development environments**, never in production instances.
 - The `MOODLE_PATH` variable must point only to local and isolated installations.
+- **HTTP mode (`--http`):** when a `--token` is provided, authentication uses constant-time comparison to prevent timing attacks. The token must be sent via the `Authorization: Bearer <token>` header — query parameter is not accepted.
 
 ---
 
@@ -283,27 +291,20 @@ Full documentation is available in `docs/`:
 
 ---
 
-## 🛠️ Support Utility (support.sh)
+## 🛠️ Useful tools
 
-The repository includes the `support.sh` script in the root as an auxiliary utility for developers. It **is not part of the MCP server** and its use is completely optional.
+Other projects by the same author that complement the development environment:
 
-```bash
-chmod +x support.sh
-./support.sh
-```
-
-The interactive menu offers:
-
-- **Install Claude Code, Gemini CLI or OpenAI Codex** via CLI — checks dependencies and installs the correct npm packages
-- **Generate instruction file** (`CLAUDE.md`, `GEMINI.md` or `AGENTS.md`) — asks questions about the Moodle version and installation path, and generates the ready-to-use context file for your AI assistant
-
-> The focus of the project is the MCP server. `support.sh` is only a convenience shortcut for new users.
+- [LuminaDev](https://github.com/kaduvelasco/lumina-dev) — Linux workstation automation for PHP/Moodle developers.
+- [LuminaStack](https://github.com/kaduvelasco/lumina-stack) — Modular PHP development environment with dynamic routing via Docker.
+- [Lumina CLI](https://github.com/kaduvelasco/lumina-cli) — Modular Bash CLI for managing the Lumina ecosystem — Docker environments, MariaDB databases and Git repositories, integrated in a single control point.
+- [Lumina AI Vault](https://github.com/kaduvelasco/lumina-ai-vault) — A high-performance Model Context Protocol (MCP) server that acts as a structured, persistent memory for AI assistants during software development.
 
 ---
 
 ## 🤝 Contributing
 
-Contributions are welcome! See the [Contribution Guide](./CONTRIBUTING.pt-BR.md) to learn how to report bugs, suggest improvements or submit pull requests.
+Contributions are welcome! See the [Contribution Guide](./CONTRIBUINDO.md) to learn how to report bugs, suggest improvements or submit pull requests.
 
 ---
 

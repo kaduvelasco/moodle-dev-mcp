@@ -132,8 +132,8 @@ export function parseUpgradePhp(filePath: string): UpgradeExtraction | null {
     steps.push({ version, description, preview });
   }
 
-  // Sort ascending by version
-  steps.sort((a, b) => a.version.localeCompare(b.version));
+  // Sort ascending by version (numeric — format is always 10-digit YYYYMMDDXX)
+  steps.sort((a, b) => parseInt(a.version, 10) - parseInt(b.version, 10));
 
   return { file: filePath, steps };
 }

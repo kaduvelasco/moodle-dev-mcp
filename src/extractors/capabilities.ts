@@ -128,10 +128,28 @@ function extractString(block: string, key: string): string {
 function extractArchetypes(block: string): Record<string, string> {
   const archetypes: Record<string, string> = {};
 
-  const archetypeBlockMatch = block.match(/'archetypes'\s*=>\s*\[([^\]]+)\]/s);
-  if (!archetypeBlockMatch) return archetypes;
+  // Support both [] and array() syntax via bracket-depth tracking
+  const startMatch = block.match(/'archetypes'\s*=>\s*(\[|array\s*\()/);
+  if (!startMatch || startMatch.index === undefined) return archetypes;
 
-  const blockContent = archetypeBlockMatch[1];
+  const blockStart = startMatch.index + startMatch[0].length - 1;
+  const openChar   = block[blockStart];
+  const closeChar  = openChar === "[" ? "]" : ")";
+
+  let depth = 0;
+  let end   = -1;
+
+  for (let i = blockStart; i < block.length; i++) {
+    if (block[i] === openChar) depth++;
+    else if (block[i] === closeChar) {
+      depth--;
+      if (depth === 0) { end = i; break; }
+    }
+  }
+
+  if (end === -1) return archetypes;
+
+  const blockContent = block.slice(blockStart + 1, end);
   const entryPattern = /'([a-zA-Z_]+)'\s*=>\s*([A-Z_0-9]+)/g;
 
   let match: RegExpExecArray | null;

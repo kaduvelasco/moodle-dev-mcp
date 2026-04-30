@@ -17,7 +17,7 @@
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { existsSync, statSync } from "fs";
-import { join } from "path";
+import { join, resolve } from "path";
 import { execSync } from "child_process";
 import { glob } from "glob";
 
@@ -235,7 +235,7 @@ export function registerDoctorTool(server: McpServer): void {
         lines.push("  — No plugins marked as in development.");
       } else {
         for (const marker of devMarkers.sort()) {
-          const pluginDir = join(marker, "..");
+          const pluginDir = resolve(marker, "..");
           let componentLabel = pluginDir.replace(config.moodlePath + "/", "");
 
           try {
