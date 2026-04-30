@@ -142,9 +142,9 @@ The server **never communicates with external servers** and **never modifies Moo
 
 ## 📊 Project status
 
-> **v1.2.0:** stable release with security improvements, bug fixes, and new features.
+> **v1.3.0:** stable release with security improvements, bug fixes, and new features.
 
-### What's new in v1.2.0
+### What's new in v1.3.0
 
 - **`MOODLE_FULLVERSION`:** the `.moodle-mcp` config file now stores the full numeric build from `$version` in `version.php` (e.g. `2022112822.00`), in addition to the human-readable version string.
 - **HTTP security hardening:** Bearer token comparison now uses constant-time evaluation to prevent timing attacks. Token via query parameter (`?token=`) has been removed — use `Authorization: Bearer <token>` header only.

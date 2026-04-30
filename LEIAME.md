@@ -138,9 +138,9 @@ O servidor **nunca se comunica com servidores externos** e **nunca modifica arqu
 
 ## 📊 Status do projeto
 
-> **v1.2.0:** release estável com melhorias de segurança, correções de bugs e novas funcionalidades.
+> **v1.3.0:** release estável com melhorias de segurança, correções de bugs e novas funcionalidades.
 
-### O que há de novo na v1.2.0
+### O que há de novo na v1.3.0
 
 - **`MOODLE_FULLVERSION`:** o arquivo `.moodle-mcp` agora armazena também o build numérico completo extraído de `$version` no `version.php` (ex: `2022112822.00`), separado da versão legível.
 - **Segurança HTTP reforçada:** a comparação do Bearer token agora utiliza comparação em tempo constante para prevenir ataques de timing. O suporte a token via query parameter (`?token=`) foi removido — use exclusivamente o header `Authorization: Bearer <token>`.
