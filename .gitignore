@@ -96,3 +96,11 @@ wp-config.php
 .aivault.json
 .mcp.json
 .code-review-graphignore
+.aiexclude
+.claudeignore
+.geminiignore
+
+# -----------------------------------------------------------------------------
+# Configurações locais de desenvolvimento
+# -----------------------------------------------------------------------------
+.moodle-mcp-dev

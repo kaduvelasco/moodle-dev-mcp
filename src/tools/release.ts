@@ -4,29 +4,32 @@
  *
  * Packages a Moodle plugin into a versioned ZIP file ready for distribution.
  * The ZIP is named {component}_{version}.zip (e.g. local_caedauth_2026041000.zip)
- * and saved to the current working directory.
+ * and contains a single root folder named after the plugin directory (e.g. caedauth/).
+ * Empty directories are not included in the ZIP.
  *
- * Files excluded from the ZIP (but kept in the project):
+ * Files and directories excluded from the ZIP (kept in the project):
  *   - moodle-dev-mcp generated docs: PLUGIN_*.md
  *   - AI assistant context files: CLAUDE.md, GEMINI.md, AGENTS.md
+ *   - AI tool config files: .claudeignore, .geminiignore, .aiexclude
  *   - Development marker: .moodle-mcp-dev
+ *   - Dependencies: node_modules
  */
 
-import { McpServer }             from "@modelcontextprotocol/sdk/server/mcp.js";
-import { createWriteStream, existsSync } from "fs";
-import { join, resolve }         from "path";
-import { z }                     from "zod";
-import archiver                  from "archiver";
+import { McpServer }                                          from "@modelcontextprotocol/sdk/server/mcp.js";
+import { createWriteStream, existsSync, readdirSync, statSync } from "fs";
+import { basename, join, relative, resolve }                  from "path";
+import { z }                                                  from "zod";
+import archiver                                               from "archiver";
 
-import { loadConfig }            from "../config.js";
-import { detectPlugin }          from "../extractors/plugin.js";
-import { resolvePluginPath }     from "../utils/plugin-types.js";
+import { loadConfig }     from "../config.js";
+import { detectPlugin }   from "../extractors/plugin.js";
+import { resolvePluginPath } from "../utils/plugin-types.js";
 
 // ---------------------------------------------------------------------------
 // Constants
 // ---------------------------------------------------------------------------
 
-const EXCLUDED_FILES = new Set([
+const EXCLUDED_NAMES = new Set([
   // moodle-dev-mcp generated context docs
   "PLUGIN_AI_CONTEXT.md",
   "PLUGIN_ARCHITECTURE.md",
@@ -43,29 +46,70 @@ const EXCLUDED_FILES = new Set([
   "CLAUDE.md",
   "GEMINI.md",
   "AGENTS.md",
+  // AI tool config files
+  ".claudeignore",
+  ".geminiignore",
+  ".aiexclude",
   // Development marker
   ".moodle-mcp-dev",
+  // Dependencies
+  "node_modules",
 ]);
 
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
-function createZip(pluginPath: string, outputPath: string): Promise<void> {
-  return new Promise((resolve, reject) => {
+/**
+ * Recursively collects file paths, skipping excluded names and empty directories.
+ */
+function collectFiles(dir: string): string[] {
+  const results: string[] = [];
+  let entries: string[];
+
+  try {
+    entries = readdirSync(dir);
+  } catch {
+    return results;
+  }
+
+  for (const entry of entries) {
+    if (EXCLUDED_NAMES.has(entry)) continue;
+
+    const fullPath = join(dir, entry);
+    let stat;
+    try {
+      stat = statSync(fullPath);
+    } catch {
+      continue;
+    }
+
+    if (stat.isDirectory()) {
+      const subFiles = collectFiles(fullPath);
+      // Empty directories are skipped — only pushed if they contain files
+      results.push(...subFiles);
+    } else if (stat.isFile()) {
+      results.push(fullPath);
+    }
+  }
+
+  return results;
+}
+
+function createZip(pluginPath: string, outputPath: string, folderName: string): Promise<void> {
+  return new Promise((res, rej) => {
+    const files   = collectFiles(pluginPath);
     const output  = createWriteStream(outputPath);
     const archive = archiver("zip", { zlib: { level: 9 } });
 
-    output.on("close", () => resolve());
-    archive.on("error", (err) => reject(err));
-
+    output.on("close", () => res());
+    archive.on("error", (err) => rej(err));
     archive.pipe(output);
 
-    archive.glob("**/*", {
-      cwd:  pluginPath,
-      dot:  true,
-      ignore: [...EXCLUDED_FILES, "**/node_modules/**"],
-    });
+    for (const filePath of files) {
+      const relPath = relative(pluginPath, filePath);
+      archive.file(filePath, { name: join(folderName, relPath) });
+    }
 
     archive.finalize();
   });
@@ -81,9 +125,12 @@ export function registerReleaseTool(server: McpServer): void {
 
     "Packages a Moodle plugin into a versioned ZIP file ready for distribution. " +
     "The ZIP is named {component}_{version}.zip (e.g. local_caedauth_2026041000.zip) " +
-    "and is saved to the current working directory. " +
-    "Excludes moodle-dev-mcp generated files (PLUGIN_*.md), AI context files " +
-    "(CLAUDE.md, GEMINI.md, AGENTS.md), and the .moodle-mcp-dev marker. " +
+    "and contains a single root folder named after the plugin directory (e.g. caedauth/). " +
+    "Empty directories are excluded from the ZIP. " +
+    "Also excludes: moodle-dev-mcp generated files (PLUGIN_*.md), AI context files " +
+    "(CLAUDE.md, GEMINI.md, AGENTS.md), AI tool config files (.claudeignore, " +
+    ".geminiignore, .aiexclude), development markers (.moodle-mcp-dev), " +
+    "and dependencies (node_modules). " +
     "The version is read from the plugin's version.php ($plugin->version). " +
     "Triggers: 'Gere uma versão desse plugin', 'Publique este plugin', 'release plugin'.",
 
@@ -94,9 +141,15 @@ export function registerReleaseTool(server: McpServer): void {
           "Moodle plugin component in the format {type}_{name} — e.g. 'local_caedauth'. " +
           "This is required. If you do not know the component, ask the user for it."
         ),
+      outputDir: z
+        .string()
+        .optional()
+        .describe(
+          "Directory where the ZIP file will be saved. Defaults to the current working directory."
+        ),
     },
 
-    async ({ component }) => {
+    async ({ component, outputDir }) => {
       // ------------------------------------------------------------------
       // Validate component format
       // ------------------------------------------------------------------
@@ -132,6 +185,19 @@ export function registerReleaseTool(server: McpServer): void {
       }
 
       const { moodlePath } = config;
+
+      // ------------------------------------------------------------------
+      // Validate outputDir if provided
+      // ------------------------------------------------------------------
+      if (outputDir && !existsSync(resolve(outputDir))) {
+        return {
+          content: [{
+            type: "text" as const,
+            text: `❌ Output directory does not exist: ${resolve(outputDir)}`,
+          }],
+          isError: true,
+        };
+      }
 
       // ------------------------------------------------------------------
       // Resolve plugin path from component
@@ -188,14 +254,15 @@ export function registerReleaseTool(server: McpServer): void {
       // ------------------------------------------------------------------
       // Build output path
       // ------------------------------------------------------------------
-      const zipName   = `${component}_${plugin.version}.zip`;
-      const outputPath = resolve(process.cwd(), zipName);
+      const folderName  = basename(pluginPath);
+      const zipName     = `${component}_${plugin.version}.zip`;
+      const destination = resolve(outputDir ?? process.cwd(), zipName);
 
       // ------------------------------------------------------------------
       // Create ZIP
       // ------------------------------------------------------------------
       try {
-        await createZip(pluginPath, outputPath);
+        await createZip(pluginPath, destination, folderName);
       } catch (e) {
         return {
           content: [{
@@ -207,19 +274,20 @@ export function registerReleaseTool(server: McpServer): void {
       }
 
       // ------------------------------------------------------------------
-      // Confirm excluded files that actually exist in the plugin
+      // Report excluded files that actually exist in the plugin
       // ------------------------------------------------------------------
-      const excluded = [...EXCLUDED_FILES].filter((f) =>
+      const excluded = [...EXCLUDED_NAMES].filter((f) =>
         existsSync(join(pluginPath, f))
       );
 
       const lines: string[] = [
         `✅ Plugin packaged successfully: ${zipName}`,
         "",
-        `Component: ${component}`,
-        `Version:   ${plugin.version}`,
-        `Output:    ${outputPath}`,
-        `Source:    ${pluginPath}`,
+        `Component:  ${component}`,
+        `Version:    ${plugin.version}`,
+        `ZIP folder: ${folderName}/`,
+        `Output:     ${destination}`,
+        `Source:     ${pluginPath}`,
       ];
 
       if (excluded.length > 0) {
